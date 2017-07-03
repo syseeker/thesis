@@ -1,0 +1,19 @@
+\documentclass{article}
+\usepackage{natbib}
+\begin{document}
+
+Buildings are the largest consumers of energy worldwide. Within a building, heating, ventilation and air-conditioning (HVAC) systems consume the most energy, leading to trillion dollars of electrical expenditure worldwide each year. In this thesis, we look at the potential for integrating building operations with room booking and occupancy scheduling. More specifically, we explore novel approaches to reduce HVAC consumption in commercial buildings, by jointly optimising the occupancy scheduling decisions and the building's occupancy-based HVAC control. We identify four unique research challenges which form the major contributions of this thesis.
+
+Our first contribution is an integrated model that achieves high efficiency in energy reduction by fully exploiting the capability to coordinate HVAC control and occupancy scheduling. The core component of our approach is a mixed-integer linear programming (MILP) model which optimally solves the joint occupancy scheduling and occupancy-based HVAC control problem. Existing approaches typically solve these subproblems in isolation: either scheduling occupancy given conventional control policies, or optimising HVAC control using a given occupancy schedule. From a computation standpoint, our joint problem is much more challenging than either, as HVAC models are traditionally non-linear and non-convex, and scheduling models additionally introduce discrete variables capturing the time slot and location at which each activity is scheduled. We find that substantial reduction in energy consumption can be achieved by solving the joint problem, compared to the state of the art approaches using heuristic scheduling solutions and to more naive integrations of occupancy scheduling and occupancy-based HVAC control.
+
+Our second contribution is an approach that scales to large occupancy scheduling and HVAC control problems, featuring hundreds of activity requests across a large number of offices and rooms. This approach embeds the integrated MILP model into Large Neighbourhood Search.
+LNS is used to destroy part of the schedule and MILP is used to repair the schedule so as to minimise energy consumption. Given sets of schedules and buildings with different constrainedness, our model is sufficiently scalable to provide instantaneous and near-optimal solutions.
+
+The third contribution is an online optimisation approach that models and solves the online joint HVAC control and occupancy scheduling problem, in which activity requests arrive dynamically. This online algorithm greedily commits to the best schedule for the latest activity requests, but revises the entire future HVAC control strategy each time it considers new requests and weather updates. We demonstrate that, even without prior knowledge of future requests, our model is able to produce energy-efficient schedules which are close to the clairvoyant solution. 
+
+Our final contribution is a robust optimisation approach that incorporates adaptive comfort temperature control into our integrated model. We devise a robust model that enables flexible comfort setpoints, encouraging energy saving behaviors by allowing the occupants to indicate their thermal comfort flexibility. We find that dynamically adjusting temperature setpoints based on occupants' thermal acceptance level can lead to significant energy reduction over the conventional fixed temperature setpoints approach.
+
+Together, these components deliver a complete optimisation solution that is efficient, scalable, responsive and robust for HVAC-aware occupancy scheduling in commercial buildings. 
+
+
+\end{document}

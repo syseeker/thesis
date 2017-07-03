@@ -1,0 +1,147 @@
+% TODO:   add acronyms
+
+% G - General
+% A - HVAC
+% R - Scheduling
+% S - Superscripts
+% U - Subscripts
+% X - Other Symbols
+% Z - Acronyms
+
+
+\nomenclature[A]{HVAC}{Heating, ventilation and air conditioning}
+\nomenclature[A]{VAV}{Variable-Air-Volume}
+\nomenclature[A]{AHU}{Air handling unit}
+\nomenclature[A]{RC}{Resistance-Capacitance}
+\nomenclature[A]{BMS}{Building management system}
+\nomenclature[A]{BAS}{Building automation system}
+\nomenclature[A]{MPC}{Model predictive control}
+\nomenclature[A]{OBC}{Occupancy-based control}
+\nomenclature[A]{DCV}{Demand-controlled ventilation}
+\nomenclature[A]{PMV}{Predicted mean vote}
+\nomenclature[A]{PPD}{Predicted percentage of dissatisfied}
+\nomenclature[A]{RINS}{Relaxation induced neighourhood search}
+\nomenclature[A]{CP}{Constraint programming}
+\nomenclature[A]{MILP}{Mixed-integer linear programming}
+\nomenclature[A]{MIP}{Mixed-integer programming}
+\nomenclature[A]{MINLP}{Mixed-integer non-linear programming}
+\nomenclature[A]{LNS}{Large neighbourhood Search}
+\nomenclature[A]{SMAC}{Sequential model-based algorithm configuration}
+\nomenclature[A]{MTDA}{Maximum temperature deviation aware}
+\nomenclature[A]{OATA}{outdoor temperature aware}
+
+
+\nomenclature[B]{$M$}{Set of meetings}
+\nomenclature[B]{$L$}{Set of locations/zones}
+\nomenclature[B]{$K$}{Set of time steps}
+\nomenclature[B]{$\Delta_t$}{Discrete time interval for scheduling \& HVAC control}
+\nomenclature[B]{$z_{l,k}$}{Binary variable which indicates if a location is occupied}
+\nomenclature[B]{$pp$}{Number of attendee}
+\nomenclature[B]{$I$}{Set of online sessions}
+\nomenclature[B]{$\tau_i$}{Start time of online session $i$}
+
+
+\nomenclature[H]{$e$}{Energy consumption ($kWh$)}
+\nomenclature[H]{$p$}{Power consumption ($kW$)}
+\nomenclature[H]{$p^{Cond}$}{Air-conditioning power consumption ($kW$)}
+\nomenclature[H]{$p^{Fan}$}{Fan power consumption ($kW$)}
+\nomenclature[H]{$p^{Heat}$}{Heating power consumption ($kW$)}
+\nomenclature[H]{$C^{pa}$}{Heat capacity of air ($kJ/kg ^\cdot K$)}
+\nomenclature[H]{$\alpha$}{Indoor air quality safety factor}
+\nomenclature[H]{$\beta$}{Fan power coefficient}
+\nomenclature[H]{$a^{SA}$}{Supply air flow rate ($kg/s$)}
+\nomenclature[H]{$a^{OA}$}{Outdoor air flow rate ($kg/s$)}
+\nomenclature[H]{$T^{SA}$}{Supply air flow temperature ($^\circ C$)}
+\nomenclature[H]{$T$}{Temperature ($^\circ C$)}
+\nomenclature[H]{$T^{OA}$}{Outdoor air temperature ($^\circ C$)}
+\nomenclature[H]{$T^{CA}$}{Conditioned air temperature ($^\circ C$)}
+\nomenclature[H]{$T^{\emptyset}$}{Unoccupied room temperature ($^\circ C$)}
+\nomenclature[H]{$T^{g}$}{Occupied room temperature ($^\circ C$)}
+\nomenclature[H]{$T^{u}$}{Maximum temperature deviation ($^\circ C$)}
+\nomenclature[H]{$w$}{Binary variable which indicates if the HVAC standby mode is active}
+\nomenclature[H]{$C$}{Thermal capacitance($kJ/m^{2} K^{1}$)}
+\nomenclature[H]{$R$}{Thermal resistance ($m^2k/W$)}
+\nomenclature[H]{$q^p$}{Occupant internal heat gain ($W$)}
+\nomenclature[H]{$Q^p$}{Total occupant internal heat gain ($kW$)}
+\nomenclature[H]{$Q^s$}{Solar heat gain ($kW$)}
+\nomenclature[H]{$\Delta H$}{Enthalphy}
+
+\nomenclature[R]{$x_{m,l,k}$}{Binary variable which indicates if meeting $m$ is scheduled to start in location $l$ at time step $k$}
+\nomenclature[R]{$y_{l,d}$}{Binary variable which indicates if a location $l$ is occupied at a day $d$}
+\nomenclature[R]{$L_m$}{Set of feasible locations for meeting $m$}
+\nomenclature[R]{$K_m$}{Set of feasible start time steps for meeting $m$}
+%\nomenclature[R]{$K_d$}{Time step at day $d$}
+%\nomenclature[R]{$K^f_m$}{Feasible time slots for meeting $m$}
+\nomenclature[R]{$K^s$}{Set of timesteps fall within standard operating hours}
+\nomenclature[R]{$d_m$}{Meeting duration for meeting $m$}
+\nomenclature[R]{$a_m$}{Activity request for meeting $m$}
+\nomenclature[R]{$P_m$}{List of attendees}
+\nomenclature[R]{${\cal C}(M)$}{Set of attendee conflict sets} %set of meeting sets that have at least one attendees in common.
+
+\nomenclature[S]{$SA$}{Supply air: air leaving the VAV box}
+\nomenclature[S]{$CA$}{Conditioned air: air being supplied by air handling unit (AHU)}
+\nomenclature[S]{$OA$}{Outdoor air}
+\nomenclature[S]{$RAR$}{Return air ratio}
+\nomenclature[S]{$s$}{Standard hour}
+\nomenclature[S]{$f$}{Feasible}
+
+\nomenclature[U]{$m$}{Specific meeting}
+\nomenclature[U]{$l$}{Specific location/zone}
+\nomenclature[U]{$k$}{Specific time step}
+\nomenclature[U]{$d$}{Specific day}
+\nomenclature[U]{$i$}{Specific online session}
+
+
+
+%\nomenclature[S]{$Cond$}{Air-conditioning}
+%\nomenclature[S]{$Fan$}{Fan}
+%\nomenclature[S]{$Heat$}{Heating}
+%\nomenclature[S]{$w$}{Window}
+%\nomenclature[S]{$z$}{Zone}
+%\nomenclature[S]{$f$}{Floor}
+%\nomenclature[S]{$c$}{Ceiling}
+%\nomenclature[S]{$w$}{Window}
+
+
+%\nomenclature[E]{$m$}{Meeting}
+%\nomenclature{$l$}{Location}
+%\nomenclature{$k$}{Discrete time period}
+%\nomenclature[E]{$L_m$}{Feasible location}
+%\nomenclature[E]{$K_m$}{Feasible time period}
+%\nomenclature[E]{$\tau_m$}{Meeting duration}
+%\nomenclature[E]{$P_m$}{Attendee list}
+%\nomenclature[E]{$N$}{Conflict attendee sets} %set of meeting sets that have at least one attendees in common.
+%
+%\nomenclature[H]{$sh^{hvac}$}{Standard hours indicator}
+%\nomenclature[H]{$p$}{Power consumption}
+%\nomenclature[H]{$e$}{Energy consumption}
+%\nomenclature[H]{$\beta$}{Fan power coefficient}
+%
+%\nomenclature[H]{$T$}{Temperature ($^\circ C$)}
+%\nomenclature[H]{$C$}{Thermal capacitance($kJ m^{-2} K^{-1}$)}
+%\nomenclature[H]{$R$}{Thermal resistance ($m^2K W^{-1}$)}
+%\nomenclature[H]{$T^{OA}$}{Outdoor temperature}
+%\nomenclature[H]{$T^{SA}$}{Supply air temperature}
+%\nomenclature[H]{$T^{CA}$}{Conditioned air temperature}
+%\nomenclature[H]{$a^{SA}$}{Supply air flow rate ($kg/s$)}
+%\nomenclature[H]{$q^p$}{Occupant internal heat gain ($W$)}
+%\nomenclature[H]{$Q^p$}{Total occupant internal heat gain ($kW$)}
+%\nomenclature[H]{$Q^s$}{Solar heat gain ($kW$)}
+%\nomenclature[H]{$C^{pa}$}{Specific heat capacity of air at constant pressure (1.005 $kJ/kg ^\circ C$)}
+%\nomenclature[H]{$\tau_{low}$}{A constant to achieve specific minimum temperature level}
+%\nomenclature[H]{$\tau_{high}$}{A constant to achieve specific maximum temperature level}
+%\nomenclature[H]{$\Delta H$}{Enthalphy}
+%
+%\nomenclature{$z$}{Indicator variable if location is occupied}
+%\nomenclature{$pp$}{Number of attendee}
+%\nomenclature{$x$}{Indicator variable if meeting is scheduled to start}
+%\nomenclature{$w$}{Indicator variable if HVAC is activated from standby mode}
+%
+%\nomenclature[S]{$z$}{Zone}
+%\nomenclature[S]{$f$}{Floor}
+%\nomenclature[S]{$c$}{Ceiling}
+%\nomenclature[S]{$w$}{Window}
+
+
+\printnomenclature
+

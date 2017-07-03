@@ -1,0 +1,356 @@
+% Add step of MIP like LNS
+%
+% Give a picture of MIP procedure
+%										LNS destroy and repair
+%										Online receding horizon
+%										Robust control and scheduling
+
+\chapter{Background - Optimisation}
+\label{cha:opt}
+
+This chapter provides a brief background of the optimisation techniques applied in this thesis. These include mixed integer programming (MIP), large neighbourhood search (LNS), online optimisation and robust optimisation. We give a fundamental overview and introduce the basic idea of each technique. We explain these techniques in chronological order following their applications to our integrated HVAC control and occupancy scheduling model. Section \ref{sec:mip:concept} describes MIP. Section \ref{sec:lns:concept} introduces LNS,  followed by online optimisation in Section \ref{sec:online:concept}. Finally, Section \ref{sec:atc:robust_opt:concept} covers robust optimisation. 
+%This chapter is intended to give a fundamental overview of each technique for readers that are not familiar with the topics. 
+All of these approaches have been widely studied, and an exhaustive literature review is beyond the scope of this work. 
+We refer readers who are interested for more detailed elaborations to the cited papers. 
+
+\section{Mixed Integer Programming}\label{sec:mip:concept}
+% http://www.gurobi.com/resources/getting-started/mip-basics
+% http://www.mcs.anl.gov/papers/P3060-1112.pdf
+% http://www.gamsworld.org/minlp/siagopt.pdf
+%  https://resources.mpi-inf.mpg.de/conferences/adfocs-03/Slides/Rothberg_1.pdf
+
+Our work is fundamentally formulated using mixed-integer programming (MIP) model. A MIP model is an optimisation problem of the form
+\begingroup
+\begin{align*}
+\mbox{minimise:} \quad &c^Tx	\\
+\mbox{subject to} \quad &Ax = u	\quad \mbox{(linear constraints)} \\
+&\undersl{x} \leq x \leq \oversl{x}	\quad \mbox{(bound constraints)}\\
+\mbox{\emph{some or all }} &x_i \mbox{\emph{ must take integer values} \quad (integrality constraints)}
+\end{align*}
+\endgroup
+
+\noindent where $A$ is an $m \times n$ constraint matrix, $x$ is a vector of $n$ variables, $c$ is the objective function, $\undersl{x}$ and $\oversl{x}$ are vectors of bounds. Some of the variables in vector $x$ are constrained to be integers, while other variables are allowed to be non-integers. Thus, a MIP is a linear program with an integrality restriction on some or all of the variables \citep{bixby2000mip}. The integrality constraints allow MIP models to capture the discrete nature of some decisions. For example, a binary variable $x_{l}$ whose values are restricted to 0 or 1, can be used to decide whether or not an action is taken, such as scheduling an activity or activating the HVAC in location $l$. 
+
+The above model is a mixed integer linear program as it has a linear objective and sets of linear constraints. The following shows a more complicated mixed integer non-linear program (MINLP) model that we tackle in Chapter \ref{cha:milp}:
+
+%\begingroup
+%\begin{align*}
+%\mbox{minimise:} \quad &x^TQy + c^Tx + b^Ty	\\
+%\mbox{subject to} \quad &Az = u	\quad \mbox{(linear constraints)} \\
+%&x^TQy + c^Tx + b^Ty = v	\quad \mbox{(bilinear constraints)} \\
+%&\undersl{x} \leq x \leq \oversl{x}	\quad \mbox{(bound constraints)}\\
+%&\undersl{y} \leq y \leq \oversl{y}	\quad \mbox{(bound constraints)}\\
+%&x \in \mathbb{R}^+, y \in \mathbb{R}^+, 	\\
+%&z \in \left[0, 1\right] \quad \mbox{(integrality constraints)} \\
+%\end{align*}
+%\endgroup 
+
+\begingroup
+\begin{align*}
+\mbox{minimise:} \quad &x^TQy + c^Tx	\\
+\mbox{subject to} \quad &w = u + x^TQy\quad \mbox{(bilinear constraints)} \\
+&\undersl{w}z \leq w \leq \oversl{w}z	\quad \mbox{(bound constraints)}\\
+&\undersl{x} \leq x \leq \oversl{x}	\quad \mbox{(bound constraints)}\\
+&\undersl{y} \leq y \leq \oversl{y}	\quad \mbox{(bound constraints)}\\
+&w \in \mathbb{R}, x \in \mathbb{R}^+, y \in \mathbb{R}^+ \\
+&z \in \left[0, 1\right] \quad \mbox{(integrality constraints)} \\
+\end{align*}
+\endgroup 
+\noindent where $x$, $y$ and $z$ are the decision variables, $u$ and $w$ are auxiliary variables, $x$ and $c \in \mathbb{R}^n$, $y \in \mathbb{R}^m$, and $Q$ is a matrix of dimension $n \times m$. $z$ is a vector of integer variables, whereas $x$ and $y$ are sets of positive continuous variables. $\undersl{w}$, $\oversl{w}$, $\undersl{x}$, $\oversl{x}$, $\undersl{y}$, $\oversl{y}$, $\undersl{z}$ and $\oversl{z}$ are vectors of bounds. This model captures the nature of our problem, where $x$ and $y$ denote the interdependent continuous variables in HVAC control and $z$ denotes the discrete scheduling decisions. 
+
+It is easy to see that this is a MINLP problem with a bilinear objective, sets of linear and bilinear constraints, and sets of discrete and continuous decision variables. The matrix $Q$ is not positive semidefinite, so this problem is nonconvex even when the integrality constraints are relaxed. Problems of this type are very difficult to solve, because they combine all the difficulties of both of their subclasses: the combinatorial nature of MIP and the difficulty in solving nonconvex non-linear programs (NLP) \citep{bussieck2003mixed}. Fortunately, innovative approaches and related techniques have been developed to exploit the structure of MIP and NLP within MINLP. 
+
+One approach to solving nonconvex MINLP is to obtain convex relaxations by exploiting the structure of the problem, and solve the corresponding approximation by using mixed-integer linear programming solvers, such as \cite{gurobi}, that are guaranteed to return a lower bound on the globally optimal MINLP objective. To obtain a suitable MILP, we use the linear programming relaxation of bilinear terms introduced by \cite{mccormick1976computability}. This relaxation introduces a new variable $v$ for the bilinear term $xy$ together with four inequalities that define its convex envelope using the bounds $[\underline{x},\overline{x}]$ and $[\underline{y},\overline{y}]$ on each of the two variables involved:
+
+\[\begin{array}{l}
+v \geq \underline{x}y + \underline{y}x - \underline{x}\underline{y}\\
+v \geq \overline{x}y + \overline{y}x - \overline{x}\overline{y}\\
+v \leq \underline{x}y + \overline{y}x - \underline{x}\overline{y}\\
+v \leq \overline{x}y + \underline{y}x - \overline{x}\underline{y}
+\end{array}
+\]
+We refer to \cite{belotti2013mixed} for a comprehensive survey of the state-of-the-art methods for solving this challenging class of problems.
+
+MILP problems are generally solved using LP-based branch-and-bound algorithm, or more specifically, \textsl{branch-and-cut}. This algorithm starts by solving the LP relaxation, obtained by simply removing all integrality restrictions. If the solution of this LP model satisfies all the integrality constraints, without them being explicitly imposed, then we can stop. We have found an optimal solution of the original MILP. Otherwise, some integrality restrictions are violated. We then pick an integral variable whose value in the LP relaxation is fractional. Suppose this variable is $x$ with a value of 0.7, we branch and create two new sub-MIP problems, one of which has the added restriction $x \geq 1$ and the other of which has the added restriction $x \leq 0$. If we can compute optimal solutions for each of these two sub-MIP problems then we can take the better of these two solutions and replace the original MIP. Upon identifying the optimal integral value for variable $x$, we have identified a cutting plane that cuts off the solution to the current LP, and we can now add the more restricted integral constraints to the original MIP. The procedure is repeated. If it happens that all of the integrality restrictions in the original MIP are satisfied in the solution, then we know that we have found a feasible solution to the original MIP. 
+
+Two important values are generated during the branching process: an upper bound objective function that is obtained by finding feasible integral solutions, and a lower bound objective function that is obtained from the LP relaxation amongst all active branch-and-cut MIP sub-problems. The difference between the current upper and lower bounds is known as the gap. When the gap is zero, an optimal MIP solution is found. %we have demonstrated optimality. 
+As a side note, presolve, cutting planes, heuristics and parallelism are four important procedures that improve on the efficiency of MIP algorithms. We refer to \cite{gurobi16mip} for an in-depth primer about MIP.
+
+
+\section{Large Neighbourhood Search}\label{sec:lns:concept}
+
+To scale our work to a larger problem size such as university timetabling, and meeting scheduling for commercial offices with huge number of rooms, we employ large neigbourhood search (LNS) in Chapter \ref{cha:lns}. LNS \citep{shaw1998using} is a hybrid optimisation technique that combines MIP or constraint programming (CP) \citep{rossi2006handbook,hentenryck2009constraint} with local search (LS). Traditionally, local search is a heuristic search paradigm that moves from one configuration to the next based on local moves without pruning the search space nor extending partial solutions. It attempts to solve optimisation problems within reasonable time constraints without offering any optimality guarantees. In contrast, MIP and CP are optimisation techniques that are very good at finding optimal solutions but they fail to scale when the model involves a lot of variables. LNS tries to get the best of both methods: exploring the solution space and escaping local minima using local search, and exploiting the power of tree pruning and finding optimal solutions for a smaller sub-problems using MIP/CP.
+
+\newpage
+LNS solves a global optimisation problem by dividing them into many smaller problems and solve them to its optimality. It consists of four steps:
+\begin{enumerate}
+	\item start with a feasible solution,
+	\item select a neighbourhood,
+	\item re-optimise the neighbourhood using MIP/CP,
+	\item repeat the steps, or exit.
+\end{enumerate}
+
+The first step consists of finding a feasible solution to the global problem. This is usually obtained by using MIP or CP as they are very good at finding feasible solutions. The key ideas of LNS lie in the second and third steps. The first key idea is to define its neighbourhood by fixing a subset of variables to their values in the best solution found so far and releasing the rest of the variables. We call this the \textsl{destroy} step. As the number of variables released at a time are usually larger than typical local search moves, one cannot rely on enumeration or simple heuristics, the so-defined neighbourhoods require a powerful algorithm to be explored \citep{danna2003structured}. Hence, the second key idea is to create several sub-problems and optimise these using MIP or CP. These sub-problems are constrained by the fixed partial solutions, but are free to re-optimise the destroyed part. We call this the \textsl{repair} step. As CP and MIP are good at pruning the search space, these methods are capable of finding better solutions within a short period of time. The final step involves repeating the procedure or exiting the procedure when a stopping criterion, such as time limit or run limit is met. This hybrid model allows us to easily navigate through the solution space whilst solving difficult core sub-problems to near-optimality. 
+
+One essential question of LNS is how to define a neighbourhood, that is which variables to free simultaneously in order to yield a better solution further away from the current solution. The basic intuition is to release variables which are correlated because they allow each other to change values and lead to a better solution. This can be achieved by exploiting the structure of the problem, or leveraging domain-specific knowledge. It is common for different problems to have different type of neighbourhoods. For example, in a job-shop scheduling problem, the neighbourhoods are formed by sets of machines, whereas for a vehicle routing problem, the neigbourhoods are formed by sets of vehicles. The neighbourhoods can be defined using the following schemes \citep{danna2003structured}:
+\begin{itemize}
+	\item a \textsl{random neighbourhood} that releases randomly chosen activities/jobs assigned to a room, a machine or a vehicle,
+	\item a \textsl{resource-based neighbourhood} that releases all activities on given resources, eg. all activities assigned to a room, all jobs assigned to a machine or a vehicle,
+	\item a \textsl{random time window neighbourhood} that releases activities scheduled within different time windows on different resources, eg. all activities assigned to room A on Monday and to room B on Friday, all jobs assigned to vehicle A and B on Tuesday and Thursday, all tasks assigned to machine A, B and C during morning shift.
+	\item a \textsl{consecutive pair neighbourhood} that releases pairs of consecutive activities, eg. activities that are scheduled in the same room one after the other.	
+\end{itemize}
+
+Note that this is a non-exhaustive list of the possible neighbourhoods that can be built. More variety of neighbourhoods can be formed by taking advantage of different properties of the problem model. For example, in a job shop scheduling problem, it is also possible to construct a neighbourhood which releases a number of jobs that are not scheduled on time, with an aim to minimise its earliness/tardiness cost. % objective function.
+Moreover, the abovementioned neighbourhood selection schemes rely heavily on randomization. There are some other schemes that combine LNS with tabu search \citep{abdullah2007tabu}, token-ring search \citep{di2002multi}, or stochastic roulette wheel search \citep{pisinger2007general} to decide on the selection of neighbourhoods.
+
+%The essential question of LNS: how to define neighbourhood - example - to free related variables..
+%What is the neighbourhood?
+%fix a subset of variables to their values in the best solution found so far
+%which subset
+%	- problem specific
+%	- exploit the problem structure
+%leverage on structure of the problem, take advantage of different properties of the problem model
+%leverage on the structure of MIP model
+
+Another important criteria in LNS is deciding the size of neighbourhood. For efficiency, it is intuitive to construct a small neighbourhood so that maximum yield is obtained by destroying a small set of variables. This also increases the number of destroy and repair steps that can be executed within a certain time limit, with an aim to further improve the results using smaller sub-problems. On the other hand, it is also necessary to construct a larger neighbourhood to diversify the search, especially when LNS could not improve on the results in smaller neighbourhoods. Another crucial decision is whether the repair step should be optimal or not. When the sub-problems are too large, CP or MIP may take very long to solve them to optimality. In this case, it is possible to truncate the tree search using a fixed or adaptive time limit, node limit or discrepancy limit.
+
+Parameter tuning on the LNS parameters such as (a) randomness of choice in neighbourhood selections, (b) variable of size in the destroy sets, and (c) runtime limit/node limit/discrepancy limit in the repair step are essential in achieving good LNS performance overall. There are numerous values that these parameters can take on. In order to identify the best configurations, a number of automated parameter tuning tools have been developed and used to tune these parameters \citep{hutter2011sequential,malitsky2013tuning}.
+
+
+%a local search paradigm that makes moves like local search, but uses a tree-based search, such as constraint programming or mixed integer programming, to identify optimal feasible solution within smaller neighbourhoods \citep{shaw1998using}. 
+%It involves multiple iterations of destroy and repair steps to identify good or near-optimal solutions. 
+
+%destroy - fix variable, release other, because variables is alot, tree search algoritm is required
+%repair - CP propagation and heuristics or MIP branch and cut
+%Give example
+% Local methods attempts to solve optimisation problems without offering any optimality guarantees. 
+% When considering discrete variables, methods producing feasible solutions mainly rely on local search methods.
+
+% http://www.ferc.gov/CalendarFiles/20120627085931-Wednesday_SessionA_Rothberg.pdf
+% https://www-304.ibm.com/support/docview.wss?uid=swg21400016 - breaking symmetry
+
+%Symmetry can occur when a model contains groups of integer variables that are all quite similar. When the CPLEX branch and cut algorithm encounters one such variable at a fractional value and branches on it, the algorithm can simply transfer the fractional value of the branching variable to another variable in the group. For example, suppose we have 5 trucks with identical capacities and costs in our model, and xij corresponds to a binary decision variable for assigning truck i to route j for i = 1,...,5. If x1j = .5 and xij = 0 for i = 2,...,5 in the initial LP relaxation of the CPLEX MIP algorithm, then branching down on x1j will probably result in a solution of x2j = .5 and xij = 0 for i = 1,3,4,5 in the next LP subproblem. No useful branching has happened; the fractional value has simply moved from one truck to another identical one, and the process could repeat itself 3 more times in this model. However, since the trucks are identical in terms of the characteristics being modelled, we really don't care which truck gets assigned first. So, we might as well add a constraint that orders the assignment of these trucks:
+%x1j >= x2j >= x3j >= x4j >= x5j
+%This constraint won't tighten the bound on the best possible integer solution, but it will make sure that truck i is always dispatched before truck i+1, thus preventing unnecessary branches that would arise by swapping identical trucks.
+%Symmetry breaking constraints like the one described here are the easiest way to remove performance problems of this type. However, in some cases, you may need actually to reformulate the model to remove symmetry. For a discussion of model reformulation to avoid symmetry, read this file Rethinking Mixed Integer Model Formulations.doc
+%Rethinking Mixed Integer Model Formulations.doc
+%or click here for an article about this topic.
+%Starting with version 8.0, CPLEX includes a symmetry detection parameter to automatically detect certain types of symmetry in MIP models, including the symmetry in the trucking example above. Additional symmetry detection capabilities, controlled by higher values of this parameter, were added with more recent versions. If you suspect symmetry is a source of slow performance for your MIP, try setting this parameter to its highest value. If that doesn't yield the desired performance improvements, then consider the addition of symmetry breaking constraints or alternate model formulation approaches described in this technote.
+
+
+\section{Online Optimisation} \label{sec:online:concept}
+
+% http://www.aaai.org/Papers/ICAPS/2006/ICAPS06-023.pdf
+% http://www.nt.ntnu.no/users/skoge/prost/proceedings/ecc-2013/data/papers/0291.pdf
+
+% By reducing the problem to its minimal structure, one can hope to attain the intrinsic difficulty of learning. 
+
+%\textcolor[rgb]{1,0,0}{Say Solve complex problem by dividing into temporal problems? }
+%\textcolor[rgb]{1,0,0}{Online scheduling - we do not predict future events, but with online MPC - we do take in considerations of future dynamics. Greedy with respect to future meeting request, but we predict future events such as changes in weather}
+
+Online optimisation deals with the optimisation problems having no or incomplete knowledge of the future \citep{jaillet2012online}. In many situations, present decisions need to be made with only partial knowledge of the upcoming events. In such cases, online optimisation can be used. This is orthogonal from stochastic optimisation and Markov Decision Processes which rely on statistical distributions. The latter approaches observe a sequence of events, form probability distributions and make decisions taking into considerations the possible occurrence of future events. Whilst it is possible to use probability distributions to inform online decisions \citep{hentenryck2009online}, it is also possible to formulate an online optimisation model which makes no probabilistic assumption on the future \citep{bubeck2011introduction}. 
+
+Online optimisation has been applied in a range of problem types, which include the scheduling of complex transportation and logistic systems \citep{golden2008vehicle}, optimising financial investment problems \citep{mulvey2004financial}, manufacturing production problems \citep{hatono1991modeling} and cyber-physical system control problems in near-real time \citep{wang2010fast,jost2013accelerating}. In our work, we introduce an online integrated HVAC control and occupancy scheduling approach in Chapter \ref{cha:online} to cope with dynamically arriving activity requests while continuously improve on the HVAC control. 
+
+The following shows an online MILP model that we tackle in Chapter \ref{cha:online}. In the online model, the scheduler runs recurrently and each run is called an \emph{online session}. Each online session $i\in I$ starts at time $\tau_i$ and ends before the next session starts at time $\tau_{i+1}$. The following shows a formalisation of an online mixed integer linear programming model that we tackle in Chapter \ref{cha:online}. We adopt a discrete-time linear model, in which the model discretizes time into a set K of time steps. Each time step $k\in K$ starts at time $t_{k}$, and the next time step $k+1$ is separated by a fixed duration $t_{k+1}-t_{k} = \bm{\Delta_t} \in \mathbb{R}^+$. Each on-line session $i$ considers a horizon of $n$ time steps $K(i) = \{k(i), \ldots, k(i)+n-1\}$ where $k(i)$, the first time step in that horizon, is the least time step in $K$ such that $t_{k(i)} \geq \tau_i$. 
+\begingroup
+\begin{align*}
+\mbox{minimise:} \quad &v_k + c^Tx_k	\\
+\mbox{subject to} \quad &w_k = u_k + v_k \quad \forall k \in K(i) \\
+&\undersl{w}z_k \leq w_k \leq \oversl{w}z_k	\quad \forall k \in K(i) \\
+&\undersl{x} \leq x_k \leq \oversl{x}	\quad \forall k \in K(i) \\
+&\undersl{y} \leq y_k \leq \oversl{y}	\quad \forall k \in K(i) \\
+&v_k \geq \underline{x}y_k + \underline{y}x_k - \underline{x}\underline{y} \quad \forall k \in K(i) \\
+&v_k \geq \overline{x}y_k + \overline{y}x_k - \overline{x}\overline{y} \quad \forall k \in K(i) \\
+&v_k \leq \underline{x}y_k + \overline{y}x_k - \underline{x}\overline{y} \quad \forall k \in K(i) \\
+&v_k \leq \overline{x}y_k + \underline{y}x_k - \overline{x}\underline{y} \quad \forall k \in K(i) \\
+&w \in \mathbb{R}, x \in \mathbb{R}^+, y \in \mathbb{R}^+ \\
+&z \in \left[0, 1\right] \\
+\end{align*}
+\endgroup 
+Similar to the model in Section \ref{sec:mip:concept}, $x$, $y$ and $z$ are the decision variables, $u$ and $w$ are auxiliary variables, $x$ and $c \in \mathbb{R}^n$, $y \in \mathbb{R}^m$. $z$ is a vector of integer variables, whereas $x$ and $y$ are sets of positive continuous variables. $\undersl{w}$, $\oversl{w}$, $\undersl{x}$, $\oversl{x}$, $\undersl{y}$, $\oversl{y}$, $\undersl{z}$ and $\oversl{z}$ are vectors of bounds. $v$ is a new variable introduced for the bilinear term $xy$ together with four inequalities that define its convex envelope using the bounds $[\underline{x},\overline{x}]$ and $[\underline{y},\overline{y}]$ on each of the two variables involved.
+
+In our joint model, we tackle both online scheduling and online MPC in parallel. 
+
+%Online scheduling is a variant in the online optimisation paradigm we tackle. 
+In online scheduling, schedules are incrementally updated upon receiving an event or a batch of events within a short interval of time. These schedules are evaluated as a function of the time and resources allocated (eg. number of activities assigned and energy used etc.) and the goal is to maximise the overall quality of actions executed over a finite-receding horizon \citep{gallagher2006incremental}. Online scheduling problems are generally constrained by deadlines and resource availability. Usually, the solution quality of an online schedule is worse than that of the full-knowledge offline solution. Thus, the solution algorithm is often evaluated by the ability to handle dynamically arriving requests with different level of constrainedness, such as deadline, time window, location and other resource flexibilities, whilst preserving the solution quality. 
+
+%Online MPC is a online control mechanism we consider. 
+As discussed in Chapter \ref{cha:background}, MPC is a receding-horizon control mechanism that optimises the current time slot while keeping future events in account. This is achieved by optimising over a finite time-horizon given inputs for future time steps, but only implementing the decisions relating to the current time slot. \textsl{Online} MPC solves an MPC control optimisation problem in every online session, usually due to perturbations from external factors such as system interruption or event triggered that require an update to the control problem. Since a constrained optimisation problem has to be solved in every time step, the online computational effort of MPC is high. Research has been conducted to accelerate online MPC by exploiting the structure of the problem \citep{wang2010fast,lim2016online}, or by warm-starting the problem with partial solutions \citep{jost2013accelerating}.
+
+The issue of incomplete data is an essential aspect of online optimisation. How well an online algorithm can perform and how one can guarantee solution quality even without knowing all data in advance are the primary challenges of the online optimisation methodology \citep{jaillet2012online}. In our scheduling approach, we do not predict future events, but with online MPC, we do take the future dynamics into consideration. Our model is greedy with respect to scheduling future meeting requests, but we predict future events such as changes in weather. One advantage of this approach is that it can divide complex problem into multiple temporal problems, and solve them quickly given a relatively smaller problem size compared to the offline approach. In our case, this approach reduces the problem size of our integrated model and produces a solution in a timely manner.
+
+
+\section{Robust Optimisation} \label{sec:atc:robust_opt:concept}
+
+Robust optimisation is used in Chapter \ref{cha:atc} to enable adaptive temperature control. 
+This optimisation paradigm deals with models featuring parameters taking values in a given uncertainty set \citep{bertsimas2011theory}. 
+Instead of seeking to immunize the solution in some probabilistic sense to stochastic uncertainty, a robust model is constructed to provide some guarantee of solution quality or feasibility for any realization of the \textsl{uncertainty in a given set}. Under this approach, a certain measure of robustness is sought with respect to the uncertainty set, with an aim to derive feasible and near optimal solutions under some trade-off of constraint violations. Unlike stochastic optimisation, this paradigm can be computationally tractable and does not suffer from the curse of dimensionality. 
+
+\newpage
+Given an objective function to optimise subject to constraints with uncertain parameters, the general robust optimisation formulation \citep{bertsimas2011theory} is 
+
+\begingroup
+\begin{align*}
+\mbox{minimise:} \quad &c^Tx	\\
+\mbox{subject to} \quad &Ax \leq b \quad \forall x \in \mathbb{R}^n, a_1 \in U_1, \ldots, a_m \in U_m.
+\end{align*}
+\endgroup
+
+\noindent Here, $a_i$ represents the $i$th row of the uncertain matrix $A$ and elements in $a_i$ are assumed to take arbitrary values in the uncertainty set $U_i \subseteq \mathbb{R}^n$. The goal is to compute minimum cost solutions $x^\ast$ among all feasible solutions and for all realizations of the parameters $a_i$ within $U_i$. Note that $a^T_i x \leq b_i \quad \forall a_i \in U_i$ if and only if $max_{\left\{a_i \in U_i\right\}} a_i^Tx \leq b_i \quad \forall i$ (i.e. worst case protection). Intuitively, this approach offers some measure of feasibility guarantees for optimisation problems featuring parameters with unknown values. More specifically, this protection is achieved by enforcing \textsl{hard constraints} given a \textsl{prescribed} uncertainty set $U_i$. 
+
+In our work, we focus on a specific class of robust optimisation problems that consider ellipsoidal uncertainty sets proposed by \cite{BenT99,ben2000robust}. This approach allows us to control the level of robustness by defining restrictions on the uncertainty set $U_i$, and to trade-off between feasibility and optimality. %robustness and performance. 
+
+An uncertainty set $U_i$ is defined as
+\begingroup
+\begin{align*}
+%U_i = \left\{\left(a_1,\ldots,a_m\right): a_{i,j} = \bar{a}_{i,j} + \hat{a}_{i,j} \xi_{i,j}, \quad \forall j \in \left\{1,\ldots,k\right\}, \quad \left\|\xi_i\right\|_\infty \leq 1, \left\|\xi_i\right\|_2 \leq \delta\right\}
+U_i = \left\{a_i \in \mathbb{R}^n | a_{i,j} = \bar{a}_{i,j} + \hat{a}_{i,j} \xi_{i,j}, \quad \forall j \in \left\{1,\ldots,n\right\}, \left\|\xi_i\right\|_\infty \leq 1, \left\|\xi_i\right\|_2 \leq \delta\right\}
+\end{align*}
+\endgroup
+
+\noindent where $\bar{a}_i$ denotes a vector of nominal values, $\hat{a}_i$ denotes a vector of deviation values and $\xi_i \in \mathbb{R}^n$ denotes a vector of independent and uniformly distributed random variables corresponding to the $i$th constraint, taking values in $\left[-1, 1\right]$. 
+
+The advantage of considering uncertainty set $U_i$ lies in the constraint satisfaction guarantee. \cite{ben2000robust} shows that if the uncertainty sets are bounded by ellipsoids of radius $\delta$, the corresponding feasible solutions have a constraint satisfaction probability that is linked to $\delta$. 
+
+\cite{babonneau2009robust} defines a robust counterpart of the above robust formulation by introducing variables $y, w \in \mathbb{R}$ and proves that the robust solution satisfies the constraint with probability at least $1-e^{-\delta^2/2}$:
+\begingroup
+\begin{align*}
+\mbox{minimise:} \quad &c^Tx	\\
+\mbox{subject to} \quad &\bar{a}_i^Tx + \left|\hat{a_i}\right|^Ty + \delta \sqrt{\left(\hat{a_i}^2\right)^T w^2}  \leq b_i  \quad \forall i = 1,\ldots,m. \\
+&-y \leq x-w \leq y \\
+&y \geq 0
+\end{align*}
+\endgroup
+
+\cite{hijazi2013robust} considers a special case where the uncertain coefficients are independent from the model variables. They consider a vector $a_i$ of random variables that capture the uncertainties, where each vector element $a_{i,j}$ takes it value in the given range $\left[\bar{a}_{i,j} - \hat{a}_{i,j}, \bar{a}_{i,j} + \hat{a}_{i,j}\right]$. % and the sum of vector elements brings an uncertain parameter disturbing the constraint satisfaction. 
+They prove that the model proposed by \cite{babonneau2009robust} can be simplified and adapted for this special case as follows:
+
+\begingroup
+\begin{align*}
+\mbox{minimise:} \quad &c^Tx	\\
+\mbox{subject to} \quad &h(x) + \bar{a}_i^T + \hat{a_i}^T \mathbb{1}^S + \sqrt{\left(\delta^2 - \left|S\right|\right) \left(\hat{a}_i^2\right)^T \mathbb{1}^{\bar{S}}}  \leq b_i  
+\end{align*}
+\endgroup
+
+\noindent where $\mathcal{S}$ is a set of indices corresponding to the offset of elements in vector $a$, determined based on an algoritm described in \cite[Proposition 1.]{hijazi2013robust}. $\mathbb{1}^S$ is a vector of binary elements where each element equals 1 if the element is in the set $\mathcal{S}$, and $\mathbb{1}^{\bar{S}}$ is its complement. Their model is used in a network-based problem where given paths accumulate random delays at each network node. Their approach is applicable to our work where the room temperature bounds can be adjusted at each time slot, according to the unknown occupants' tolerance and outdoor temperature fluctuation, which represents our set of uncertain parameters.%, which\textcolor[rgb]{1,0,0}{ own set of uncertain parameters}.
+
+We refer readers to \citep{Elgh97,BenT98,BenT99,babonneau2009robust,hijazi2013robust} for more detailed theorems and proofs of this approach and to \cite{bertsimas2011theory,gabrel2014recent} for comprehensive surveys of the state-of-the-art theory and applications of robust optimisation. 
+
+
+%Robust optimisation constitutes a subsection of our work in Chapter \ref{cha:atc} to enable adaptive temperature control. 
+%This optimisation paradigm deals with uncertainty in optimisation problems, in which the uncertainty model is not stochastic, but rather deterministic and set-based \citep{bertsimas2011theory}. Instead of seeking to immunize the solution in some probabilistic sense to stochastic uncertainty, a robust model is constructed to provide guarantee of solution quality or feasibility for any realization of the \textsl{uncertainty in a given set}. Under this approach, a certain measure of robustness is sought against the uncertainty set, with an aim to derive feasible and near optimal solution under some trade-off of constraint violations. Unlike stochastic optimisation, this optimisation paradigm is often computationally tractable and does not suffer from the curse of dimensionality. 
+%
+%Given an objective function to optimise subject to constraints with uncertain parameters, the general robust optimisation formulation \citep{bertsimas2011theory} is 
+%
+%\begingroup
+%\begin{align*}
+%\mbox{minimise:} \quad &c^Tx	\\
+%\mbox{subject to} \quad &Ax \leq b \quad \forall a_1 \in U_1, \ldots, a_m \in U_m.
+%\end{align*}
+%\endgroup
+%
+%\noindent Here, $a_i$ represents the $i$th row of the uncertain matrix $A$ and are assumed to take arbitrary values in the uncertainty set $U_i \subseteq \mathbb{R}^n$. The goal is to compute minimum cost solutions $x^\ast$ among all those solutions which are feasible for all realizations of the disturbances $a_i$ within $U_i$. Note that $a^T_i x \leq b_i \quad \forall a_i \in U_i$ if and only if $max_{\left\{a_i \in U_i\right\}} a_i^Tx \leq b_i \quad \forall i$ (i.e. worst case protection). Intuitively, this problem offers some measure of feasibility protection for optimisation problems containing parameters which are not known exactly. More specifically, this protection is achieved by relaxing \textsl{hard constraints} with a \textsl{prescribed} uncertainty set $U$. 
+%
+%In our work we focus at specific class of robust optimisation that consider ellipsoidal uncertainty sets proposed by \cite{BenT99,ben2000robust}. This approach allows us to control the level of robustness by defining the restrictions on the uncertainty set $U$, and to trade-off between robustness and performance. 
+%
+%The uncertainty set $U$ is given as
+%\begingroup
+%\begin{align*}
+%U = \left\{\left(a_1,\ldots,a_m\right): a_i = \bar{a}_i + \hat{a}_i \xi_i, \quad \forall i \in \left\{1,\ldots,m\right\}, \quad \left\|\xi\right\|_\infty \leq 1, \left\|\xi\right\|_2 \leq \delta\right\}
+%\end{align*}
+%\endgroup
+%
+%\noindent where $\bar{a}_i$ denotes a vector of nominal values, $\hat{a}_i$ denotes a vector of arbitrary values, that take their values independently and following no specific distribution, and $\xi_i$ denotes a vector of random variables corresponding to $i$th constraint and takes values in $\left[-1, 1\right]$. 
+%
+%The advantage of considering uncertainty set $U$ lies in the constraint satisfaction guarantee. \cite{ben2000robust} shows that if the uncertain sets are bounded by ellipsoids of radius $\delta$, the corresponding robust feasible solutions have a constraint satisfaction probability that is linked to $\delta$. 
+%
+%\cite{babonneau2009robust} defines a robust counterpart of the above robust formulation by introducing variables $y, w \in \mathbb{R}$ and proves that the robust solution satisfies the constraint with probability at least $1-e^{-\delta^2/2}$:
+%\begingroup
+%\begin{align*}
+%\mbox{minimise:} \quad &c^Tx	\\
+%\mbox{subject to} \quad &\bar{a}_i^Tx + \left|\hat{a_i}\right|^Ty + \delta \sqrt{\left(\hat{a_i}^2\right)^T w^2}  \leq b_i  \quad \forall i = 1,\ldots,m. \\
+%&-y \leq x-w \leq y \\
+%&y \geq 0
+%\end{align*}
+%\endgroup
+%
+%\cite{hijazi2013robust} considers a special case where the uncertain coefficients are independent from the model variables. They consider a vector $a_i$ of random variables that capture the uncertainties, where each vector element $a_{i,j}$ takes it value in the given range $\left[\bar{a}_{i,j} - \hat{a}_{i,j}, \bar{a}_{i,j} + \hat{a}_{i,j}\right]$ and the sum of vector elements brings an uncertain parameter disturbing the constraint satisfaction. They prove that the model proposed by \cite{babonneau2009robust} can be simplified and generalized for this special case as follows:
+%
+%\begingroup
+%\begin{align*}
+%\mbox{minimise:} \quad &c^Tx	\\
+%\mbox{subject to} \quad &h(x) + \bar{a}_i^T + \hat{a_i}^T \mathbb{1}^S + \sqrt{\left(\delta^2 - \left|S\right|\right) \left(\hat{a}_i^2\right)^T \mathbb{1}^{\bar{S}}}  \leq b_i  
+%\end{align*}
+%\endgroup
+%
+%\noindent where $\mathcal{S}$ is a set of indices corresponding to the offset of elements in vector $a$, determined based on a rule-based algoritm described in \cite[Proposition 1.]{hijazi2013robust}. $\mathbb{1}^S$ is a vector of binary elements where each element equals 1 iff the element is in the set $\mathcal{S}$, and $\mathbb{1}^{\bar{S}}$ is its complement. Their model turns out to be applicable for real world problems such as network based problems where the path delay are obtained by summing the disturbance (a.k.a delay) at each network nodes. The same is applicable to our work where the room temperature bounds can be adjusted at each time slot, according to the occupants tolerance and outdoor temperature fluctuation.
+%
+%We refer readers to \citep{Elgh97,BenT98,BenT99,babonneau2009robust,hijazi2013robust} for more detailed theorem and proofs of this approach and to \cite{bertsimas2011theory,gabrel2014recent} for comprehensive surveys of the state-of-the-art theory and applications of robust optimisation. 
+
+%--------------------
+%They introduced a general framework for ellipsoidal uncertainty sets and defined the robust counterpart of corresponding optimisation problems. Based on theorem in \cite{BenT99}, let $U$ be %a set bounded by an ellipsoid of radius $\rho$, i.e.
+%\begingroup
+%\begin{align*}
+%U \equiv U\left(\Pi,Q\right) = \left\{\Pi(u)|\left\|Qu\right\| \leq \delta \right\},
+%\end{align*}
+%\endgroup
+%
+%\noindent where $u\rightarrow\Pi(u)$ is an affine embedding of $\mathbb{R}^L$ into $\mathbb{R}^{m\times n}$ and $Q \in \mathbb{R}^{M\times L}$. We can then derive an equivalent second-order cone program (SOCP), 
+%
+%\begingroup
+%\begin{align*}
+%\mbox{minimise:} \quad &c^Tx	\\
+%\mbox{subject to} \quad &a_ix \leq b_i \quad \forall a_i \in U_i, \forall i = 1,\ldots,m.
+%\end{align*}
+%\endgroup
+%
+%\noindent Here, the uncertainty set is given as
+%\begingroup
+%\begin{align*}
+%U = \left\{\left(a_1,\ldots,a_m\right): a_i = \bar{a}_i + \hat{a}_i \xi_i, \quad i=1,\ldots,m, \quad \left\|\xi\right\|_2 \leq \delta\right\}
+%%U = \left\{\left(a_1,\ldots,a_m\right): a_i = a^0_i + \Delta_i u_i, \quad i=1,\ldots,m, \quad \left\|u\right\|_2 \leq \rho\right\}
+%\end{align*}
+%\endgroup
+%
+%\noindent where $\bar{a}_i $ denotes the nominal value and $\hat{a}_i$ denotes an arbitrary value, independently and following no specific distribution. The robust counterpart is
+%
+%\begingroup
+%\begin{align*}
+%\mbox{minimise:} \quad &c^Tx	\\
+%\mbox{subject to} \quad &\bar{a}_ix \leq b_i - \delta\left\|\hat{a}_ix\right\|_2   \quad \forall i = 1,\ldots,m.
+%%\mbox{subject to} \quad &a^0_ix \leq b_i - \rho\left\|\Delta_ix\right\|_2   \quad \forall i = 1,\ldots,m.
+%\end{align*}
+%\endgroup
+%
+%%According to \citep{bertsimas2011theory},
+%%The intuition is that, for the case of ellipsoidal uncertainty, the subproblem $\mbox{max}_{\left\{a_i \in U_i\right\}} a_i^T x \leq b_i \quad \forall i$ is an optimisation over a quadratic constraint. The dual, therefore involves quadratic functions which leads to the resulting SOCP. 
+%In \cite{ben2000robust}, they further improvised the robust model to provide probability guarantees. Under this model, if the uncertain sets are bounded by the ellipsoids of radius $\delta$, they show that the corresponding robust feasible solutions have a constraint satisfaction probability that is linked to $\delta$. 
+%%Specifically, consider a linear constraint $\sum \limits_{j} a_{ij}x_j \leq b_i$, where the coefficients $\tilde{a}_{ij} = (1 + \xi_{ij}) a_{ij}$, where $a_{ij}$ is a nominal value for the coefficient and $\left\{\xi_{ij}\right\}$ are 
+%%zero mean, independent over $j$, and supported on $\left[-1, 1\right]$, 
+%%independent and symmetrically distributed random variables in $\left[-1, 1\right]$,
+%Specifically, consider a linear constraint $\sum_{j} \tilde{a}_{ij}x_j \leq b_i$, where the coefficients $\tilde{a}_{ij}$ are uncertain and given by $\tilde{a}_{ij} = \bar{a}_{ij} + \hat{a}_{ij}\xi_{ij}$, where $\bar{a}_{ij}$ is a nominal value for the coefficient, $\hat{a}_{ij}$ is an arbitrary value follows no distribution and $\left\{\xi_{ij}\right\}$ are independent and symmetrically distributed random variables in $\left[-1, 1\right]$,
+%then a robust constraint of the form 
+%
+%\begingroup
+%\begin{align*}
+%\sum\limits_{j} \bar{a}_{ij}x_j + \delta \sqrt{\sum\limits_{j} \hat{a}^2_{ij} x^2_j} \leq b_i
+%\end{align*}
+%\endgroup
+%
+%\noindent implies the robust solution satisfied the constraint with probability at least $1-e^{-\delta^2/2}$.
+
+%Essentially, the method that we apply enable robust control via robust optimisation technique. 
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,159 @@
+\chapter{Conclusion}
+\label{cha:conc}
+
+
+The objective of this thesis is to develop optimisation techniques for controlling HVAC systems and scheduling occupant activities in commercial and educational buildings, so as to maximise the benefits to both building owners and occupants.
+%minimise energy savings whilst maximise occupants thermal comfort. 
+Four key parts of the problem are investigated in Chapters \ref{cha:milp}, \ref{cha:lns}, \ref{cha:online} and \ref{cha:atc}, with the techniques developed in these chapters combining to form an overall solution to the problem. This solution increases the energy efficiency of the HVAC systems in buildings without compromising the thermal comfort needs of occupants. %whilst addressing the thermal comfort needs of occupants.
+
+The results can be viewed as the development of a novel mechanism that is efficient, scalable, responsive and robust for energy-aware occupancy scheduling in commercial buildings. The method has a large number of advantages, as discussed throughout this thesis, the most significant of which are:
+
+\begin{itemize}
+	\item An \textsl{efficient} integrated HVAC control and occupancy scheduling model whose performance exceeds the existing arts which solve the problems in isolation or via a na\"{\i}ve superposition of both of its parts.
+	\item A \textsl{scalable} model that is capable of providing instantaneous and near-optimal results for large-scale problems.
+	\item A \textsl{responsive} online model that is capable of handling impromptu scheduling requests and producing energy-efficient schedules even without prior knowledge of future requests.
+	\item A \textsl{robust} adaptive temperature control approach that enables flexible comfort setpoints configuration, pushing further on energy reduction by leveraging occupants' thermal comfort flexibility and outdoor temperature.
+\end{itemize}
+
+This holistic approach brings a new perspective on how optimisation techniques can be deployed to improve building efficiency and sustainability. Facilitated by seamlessly integrating building's HVAC operations with room booking and meeting appointment system, it drives an innovative way of energy conservation in buildings, without compromising various constraints of the occupants' activity scheduling and thermal comfort needs.
+
+
+\section{Key Learnings}
+
+The four parts of the problem that are investigated in this thesis produced their own key learnings.
+
+Chapter \ref{cha:milp} develops an integrated HVAC control and occupancy scheduling model using MILP and compares several state-of-the art approaches to optimising HVAC consumption based on occupancy scheduling in commercial buildings. Despite the challenges of computational complexity, our technique which jointly optimises HVAC control and occupancy scheduling was found to provide higher energy savings than that of the existing methods. The technique developed is efficient enough and can be used in a range of applications, either by adopting the schedule and deploying the optimised HVAC control in buildings equipped with occupancy-based HVAC control, or by constraining the temperature setpoint bounds on HVAC in buildings with conventional HVAC control based on the optimal solution found in solving the joint problem.
+
+Chapter \ref{cha:lns} investigates the use of LNS and MIP to solve problems of realistic size. Destroying the neighbourhood of a small number of rooms using LNS, and repairing the schedule using MILP is found to be an effective combination. Removing all schedules in the selected rooms means that the schedule can be re-optimised to any time at the selected subset of rooms. This allows the model to optimise HVAC control over the entire receding horizon. The resulting sub-problem is small enough for MIP to solve it to near-optimality. The hybrid technique is found to produce significantly better solutions within a short runtime.
+
+Chapter \ref{cha:online} extends the joint model to handle online requests. It is found that our online mechanism can produce solutions with quality close to a clairvoyant solution, by greedily committing to the best times and locations for the latest requests, keeping the current schedule but revising the entire future HVAC control strategy. The solution quality, in terms of energy savings and solution feasibility, is found to be improved as the occupant's scheduling flexibility increase. This allows us to produce energy-efficient schedules even without prior knowledge of future requests and avoid scalability issues which exist in stochastic techniques.
+
+Chapter \ref{cha:atc} incorporates the concept of adaptive temperature control into our joint model. Based on the occupants' thermal comfort flexibility, the comfort setpoints are dynamically adjusted, moving away from the standard cooling and heating setpoints configurations. Our robust model which considers an ellipsoidal uncertainty set is computationally tractable and provides a probabilistic guarantee towards occupants' thermal comfort satisfaction. We find that, given some thermal comfort flexibility, we can achieve substantially more energy reduction and produce more feasible solutions in an online setting than the conventional fixed setpoints approach.
+
+The buildings' HVAC consumption is largely influenced by the occupants' activities, this thesis closes the research gap by looking into the aspects combining HVAC control with occupancy scheduling. Most of the current research on HVAC control in commercial buildings focus on green building design or energy-efficient HVAC systems. Our approach looks into building operations wise problem, by determining the occupancy flow and optimising the building load distribution. This can be served as an alternative input and perspective to the building designers. While it is possible to reduce energy consumption by retrofitting buildings with more efficient HVAC systems, it is far more cost effective to improve their control algorithms. 
+
+% passive buildings
+
+%you should say
+%but we consider builing loads of builing
+%
+%we focus on the builing operation wise problem. 
+%our research can be an input to the building designer.
+%
+%Most of the current research looks into building design or building hvac control.
+%Research gap looks into scheduling + hvac control.
+%This is a good perspective to building designer.
+%Not all building can be retrofit. There are more old building than new buildings. 
+%And new buildings get old.
+
+\section{Discussion \& Future Research}
+
+\begin{table*}[h]
+\centering
+\begin{tabular}{p{0.1\linewidth} p{0.25\linewidth} p{0.25\linewidth}  p{0.25\linewidth}}
+\hline \centering{\textbf{Model}} & \centering{\textbf{Abstractions}} & \centering{\textbf{Impacts}} & \centering{\textbf{Future Work}} \tabularnewline
+\hline VAV-based system & 
+\begin{itemize}
+	\item Our model focus on optimizing the demand side control parameters of the HVAC system.
+	\item The supply side of the HVAC system is abstracted.
+	\item The control model is linearised.
+\end{itemize} & 
+\begin{itemize}		
+	\item The optimized supply air flow temperature and air flow rate may not be achievable by the VAV or the supply side system.
+	\item Inaccurate energy consumption calculation due to the abstractions of the supply side system.
+	\item Inaccurate energy consumption calculation due to linearisation of the model. The linearised model produces only the lower bound on the energy consumption. Actual consumption may be higher.
+\end{itemize} & 
+\begin{itemize}	
+	\item Incorporate HVAC supply side modeling.
+	\item Compare the linearised model with a better MINLP-based HVAC model.
+	\item Trial run on existing VAV-based buildings.
+\end{itemize}
+\tabularnewline
+\hline Building thermal dynamics &
+\begin{itemize}
+	\item Reduced RC model is adopted.
+	\item Zone humidity, infiltration etc are ignored.
+\end{itemize}& 
+\begin{itemize}
+	\item Inaccurate zone temperature calculation, result in inaccurate feedback to the MPC-based control model.
+\end{itemize}&
+\begin{itemize}
+	\item Incorporate more building thermal dynamics parameters.
+	\item Explore data-driven techniques to calibrate RC parameters.	
+\end{itemize}
+ \tabularnewline
+\tabularnewline
+\end{tabular}
+	\caption{Model abstractions, their impacts and potential future works}
+	\label{tab:impact}
+\end{table*}
+% This thesis has raised a number of important questions that can form the basis of future research.
+
+One major challenge in modeling complex systems in a computational framework is determining the abstractions which allow for reasonable computational performance without compromising model accuracy. In this thesis, we strive to strike a balance between both. A series of abstractions have been applied in modeling the HVAC control operations and the building thermal dynamics. Table \ref{tab:impact} summarises such abstractions (i.e. the simplications, relaxations and approximations from the real-world model), discusses their impacts and raises a number of potential work that form the basis of future research.
+
+%Such abstractions are made to balance the accuracy and computational expense of solving a complex model of our joint scheduling and control problem. 
+
+
+\textbf{Abstractions of the VAV-based HVAC system.} In this thesis, we focus on the modeling of the demand side of the HVAC system, that is, we optimise the HVAC operation by identifying the optimum supply air flow rate and air flow temperature in the VAV-based system. The building load is changed based on the schedule produced. The supply side of the HVAC systems, including equipments such as chillers, boilers and condensers, together with their control operations and energy consumptions, are abstracted in our model. These equipments are in fact the most energy-hungry. Such abstraction impacts the the calculation of energy consumption. Future research could develop a more comprehensive model that incorporates the control of these devices into our joint model. Specifically, such control involves optimizing the following operations:
+\begin{itemize}
+	\item the chiller operations (for eg. chiller water temperature, a.k.a the conditioned air temperature, which can be dynamically reset based on outdoor temperature, 
+	\item the boiler operations,
+	\item the condenser operations,
+	\item a more complex supply fan model, which is defined as a quartic function in Energy+ \citep{crawley2000energyplus}, instead of a linear function in our model etc.
+\end{itemize}
+ 
+In addition, we utilise MILP to solve the joint HVAC control and occupancy scheduling problem. This linearised model produces an optimal solution guaranteed to provide a lower bound on the objective function, but it remains an open question whether it is possible to fit such models in a practical environment. Further investigations are required to examine how accurate the linear model compared to the HVAC control in practice. This can be achieved by (a) comparing the MILP model with a better MINLP-based HVAC model, and/or (b) conducting a trial run on existing VAV-based buildings with our optimised occupancy schedules, and comparing the room temperatures, supply air flow rate, air flow temperature and energy consumption produced by the models and the real-world data. %We hope that such a trial will be the topic of future work.
+
+\textbf{Abstractions of the building thermal dynamics.} We adopt a lumped RC network to model the building thermal dynamics. Specifically, we use 3R2C to model the heat transmission between two walls, 2R1C for the ceiling and the floor and 1R for the window. For simplication, we also ignore humidity and infiltration in the thermal dynamics model. Such abstraction impacts the the accuracy of zone temperature calculation. In future, additional building thermal dynamics parameters such as the following are worth exploring: 
+\begin{itemize}
+	\item humidity in the enthalpy calculation,	
+	\item thermal convection and infiltration/exfiltration in the zone temperature calculations,	
+	\item temperature of mixed air in cooling load,		
+\end{itemize}
+These parameters have been found useful in modeling a more accurate HVAC system and in improving the energy-efficiency of the HVAC systems. However, the level of abstraction at which the models are developed is an important consideration, as this will impact the efficiency and accuracy of the model, as well as its practicability in the real-world. In fact, it is always necessary to strike the right balance between how closely reality can be modeled and the practicability of deploying the model in the real world.
+
+In addition, future research could also explore machine learning techniques to improve on the building thermal dynamics model. For example, the RC model can be learnt and configured using real-data. Specifically, the RC parameters can be calibrated using temperature data collected from sensors, and further optimised for each building. Learning techniques can also be developed to build a profile of occupant thermal comfort tolerance level, and use to tune different level of thermal comfort flexibility options in our model.
+
+Passive buildings, or more commonly denoted as passive houses \citep{henze2004evaluation,sadineni2011passive}, are gaining popularity due to their promise of huge cuts in energy use. These buildings usually have higher thermal capacitance, with minimal space cooling and heating requirement. Different locations of the buildings may have different temperature throughout the day, thus selecting the best locations and times is important to ensure the occupants' thermal comfort. It might be interesting to explore if our model is helpful to schedule activities in such buildings, with an aim to balance the building load and conserve more energy.
+
+It is also worth pursuing research on finding efficient optimisation models that work on the joint model we developed. In fact we have experimented with MINLP and CP without much success. Existing MINLP models tend to be computationally expensive, that is why we resort to a MILP model. Future work could develop a joint MINLP that is efficient in producing near-optimal results for HVAC control whilst considering occupancy scheduling. It might also be interesting to consider exploring a CP-based joint model, since there is no notion of non-linearity in CP. With the recent advancement of CP technologies in learning \citep{chu2011improving,schutt2011improving} and continuous CP \citep{feydy2016interval}, this can be accomplished by either discretizing the HVAC control variables using time steps with very fine-granularity, or by solving the model as it is using state-of-the-art CP techniques. Future research would also investigate various algorithmic approaches and open challenges in the optimisation paradigm, such as RINS-based LNS, adaptive LNS and symmetry breaking in MIP, which can be potentially applied and improved on the joint problem we are tackling.
+%
+%%Further research is needed to investigate the application of multi-objective optimisation to over-constrained problems where, additionally, violation of scheduling constraints needs to be minimised. In our case, 
+%%eg. continuous meeting scheduling? consider meeting overspill?
+
+\section{Summary}
+
+To summarise, this thesis has addressed the question of how computational models, methods and tools can be designed and developed to integrate occupancy scheduling with HVAC control, in such a way that the building energy consumption is conserved whilst the occupant's thermal comfort and scheduling requirements are preserved. It has expanded the knowledge of various optimisation techniques using MILP, LNS, online scheduling and control optimisation, and robust optimisation, and shown their applicability in real-world applications. It has discovered a range of interesting future research topics, and will continue to be developed and demonstrated in real-world trial.
+
+Constructing and maintaining energy-efficient and sustainable buildings in worldwide still presents a formidable challenge, but one that is becoming ever more achievable due to advances such as those presented in this thesis. This challenge, along with the rapid pace of technological developments, make it an exciting time to work in the research of computational sustainability in built environment.
+
+
+
+
+
+
+
+
+
+
+
+
+%
+%
+%The outlook schedule does not perform well because meetings are often either shorter than scheduled or even cancelled, leaving the HVAC system running with no one present.
+%
+%this comes with a sacrifice in occupant comfort because of times when occupants are present little or no motion, causing the HVAC system revert to the higher, less comfortable daily setback temperature.
+%
+%
+%Combine with sensor-based system to perform occupancy prediction + proactive scheduling
+%
+%considering different pricing schemes for buildings which are connected to smart grid.
+%%connecting to smart grid and minimise peak load
+%\cite{chai2014minimizing} and \cite{pan2013minimising} consider minimising building HVAC cost in smart grid with optimal meeting scheduling, but they assume a black-box modeling of HVAC control where each room is pre-characterised by its energy consumption. On the other hand, \cite{ma2014distributed} and \cite{avci2013model} try to optimise HVAC control strategy by avoiding peak load on smart grid under dynamic real-time pricing, however, they do not consider the potential of occupancy scheduling in buildings. With our model, it is possible to combine occupancy scheduling with HVAC load control to minimise peak load demand on smart grid. For example, we can jointly minimise energy consumption and HVAC cost by binding temperature setpoints to price ranges. 
+%% Why jointly optimise, not just minimise hvac cost?  Because for eg, in the morning, we may achieve lower cooling load because of cold outdoor temperature, but meanwhile the real-time pricing is high as everybody has turned on their hvac. So it is a multiobjective optimisation problem that try to minimise energy consumption (carbon footprint) and minimise energy cost (bill)
+%
+%
+%
+%Further research is needed to investigate the application of multi-objective optimisation to over-constrained problems where, additionally, violation of scheduling constraints needs to be minimised. In our case, 
+%eg. continuous meeting scheduling? consider meeting overspill?
+

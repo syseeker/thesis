@@ -1,0 +1,199 @@
+
+\documentclass[11pt, a4paper]{book}
+\usepackage{svn-multi}
+\svnid{$Id$}
+%\usepackage{prelim2e}
+%\renewcommand{\PrelimWords}{Draft Copy \svnkw{Id}}
+%%\newcommand*{\mysvnrev}{\svnrev}
+\usepackage[hyperindex=true,
+						bookmarks=true,
+            pdftitle={}, pdfauthor={Boon-Ping Lim},
+            colorlinks=false,
+            %pdfborder=0,				-- BP: removed to reduce warning
+            pagebackref=false,
+            citecolor=blue,
+            plainpages=false,
+            pdfpagelabels,
+            pagebackref=true,
+            hyperfootnotes=false]{hyperref}
+\usepackage[all]{hypcap}
+\usepackage[palatino]{anuthesis}
+\usepackage{afterpage}
+\usepackage{graphicx}
+\usepackage{thesis}
+\usepackage[square]{natbib}
+\usepackage[normalem]{ulem}
+\usepackage[table]{xcolor}
+\usepackage{makeidx}
+\usepackage{cleveref}
+%\usepackage[centerlast]{caption2} -- BP: removed to reduce warning
+\usepackage{float}
+\urlstyle{sf}
+\renewcommand{\sfdefault}{uop}
+\usepackage[T1]{fontenc}
+\usepackage[scaled]{beramono}
+\usepackage{multirow}
+
+
+%%%%--------------------- BP ------------------------
+\usepackage{wrapfig}
+\usepackage{lscape}
+\usepackage{rotating}
+\usepackage{gensymb}
+\usepackage{amsmath}
+\usepackage[lined,linesnumbered]{algorithm2e}
+\usepackage{paralist}
+\usepackage[inline]{enumitem}
+\usepackage{bm}
+\newdimen\slantmathcorr
+\def\oversl#1{%assuming that mathslant=0.25
+\setbox0=\hbox{$#1$}
+\slantmathcorr=\wd0
+\hskip 0.2\slantmathcorr \overline{\hbox to 0.8\wd0{%
+\vphantom{\hbox{$#1$}}}}
+\hskip-\wd0\hbox{$#1$}
+}
+
+\def\undersl#1{%assuming that mathslant=0.25
+\setbox0=\hbox{$#1$}
+\slantmathcorr=\wd0
+\underline{\hbox to 0.8\wd0{%
+\vphantom{\hbox{$#1$}}}}
+\hskip-0.8\wd0\hbox{$#1$}
+}
+
+\usepackage{nomencl}
+\usepackage{ifthen}
+\renewcommand\nomgroup[1]{%
+	\ifthenelse{\equal{#1}{B}}{%
+    \item[\textbf{General}]}{%           			 G - General
+  \ifthenelse{\equal{#1}{H}}{%
+    \item[\textbf{HVAC}]}{%                		 A - HVAC
+  \ifthenelse{\equal{#1}{R}}{%
+    \item[\textbf{Scheduling}]}{%           	 R - Scheduling  
+  \ifthenelse{\equal{#1}{S}}{%
+    \item[\textbf{Superscripts}]}{%            S - Superscripts
+  \ifthenelse{\equal{#1}{U}}{%
+    \item[\textbf{Subscripts}]}{%              U - Subscripts
+	\ifthenelse{\equal{#1}{A}}{%
+    \item[\textbf{Acronyms}]}{%              	 Z - Acronyms
+  \ifthenelse{\equal{#1}{X}}{%
+    \item[\textbf{Other Symbols}]}
+		{%           X - Other Symbols
+  {}}}}}}}}}
+\renewcommand*{\nompreamble}{\markboth{\nomname}{\nomname}}
+
+\newcommand{\func}[1]{\mbox{#1}}
+
+
+\makenomenclature
+%%%%------------------------------------------------
+
+
+\renewcommand*{\backref}[1]{}
+\renewcommand*{\backrefalt}[4]{
+  \ifcase #1 %
+    %
+  \or
+    (cited on page #2)%
+  \else
+    (cited on pages #2)%
+  \fi
+}
+
+
+%\citet{jon90}	    -->    	Jones et al. (1990)
+%\citet[chap. 2]{jon90}	    -->    	Jones et al. (1990, chap. 2)
+%\citep{jon90}	    -->    	(Jones et al., 1990)
+%\citep[chap. 2]{jon90}	    -->    	(Jones et al., 1990, chap. 2)
+%\citep[see][]{jon90}	    -->    	(see Jones et al., 1990)
+%\citep[see][chap. 2]{jon90}	    -->    	(see Jones et al., 1990, chap. 2)
+%\citet*{jon90}	    -->    	Jones, Baker, and Williams (1990)
+%\citep*{jon90}	    -->    	(Jones, Baker, and Williams, 1990)
+%
+
+\input{macros}            
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Preamble
+\title{Energy-aware Occupancy Scheduling}
+\author{Boon-Ping Lim}
+\date{\today}
+
+\renewcommand{\thepage}{\roman{page}}
+
+\makeindex
+\begin{document}
+%%%\doparttoc
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% Title page
+%%------------- BP Start here 
+%\pagestyle{empty}
+%\thispagestyle{empty}
+%\input{1_titlepage}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Here begin the preliminaries
+%\input{2_frontmatter}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Dedication
+%\cleardoublepage
+%\pagestyle{empty}
+%\input{3_dedication}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% Acknowledgements
+%\cleardoublepage
+%\pagestyle{empty}
+%\input{4_ack}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% Abstract
+%\cleardoublepage
+%\pagestyle{headings}
+%\input{5_abstract}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% Table of contents
+%\cleardoublepage
+%\pagestyle{headings}
+%\markboth{Contents}{Contents}
+%\tableofcontents
+%\listoffigures
+%\listoftables
+%\input{mypubs}
+%\input{symbols}
+	%%%%% pdflatex <filename>.tex
+	%%%%% makeindex <filename>.nlo -s nomencl.ist -o <filename>.nls
+	%%%%% pdflatex <filename>.tex
+%%%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% Here begins the main text
+%\mainmatter
+%\input{6_intro}
+%\input{7_background}
+%\input{14_opt}
+%\input{8_mip}
+%\input{9_lns}
+%\input{10_online}
+%\input{11_atc}
+%\input{12_conclusion}
+%\input{13_ep}
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Here begins the end matter
+
+%
+%\backmatter
+%
+%\bibliographystyle{anuthesis}
+%\bibliography{thesis}
+%
+%\printindex
+%%------------- BP End here 
+
+
+\end{document}

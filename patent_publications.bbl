@@ -1,0 +1,17 @@
+\begin{thebibliography}{1}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\providecommand{\urlprefix}{}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi:\discretionary{}{}{}#1}\else
+  \providecommand{\doi}{doi:\discretionary{}{}{}\begingroup
+  \urlstyle{rm}\Url}\fi
+
+\bibitem[{Thi{\'e}baux et~al.(2017)Thi{\'e}baux, Lim, {Van Hentenryck}, and
+  {van den Briel}}]{thiebaux2015controlling}
+\textsc{Thi{\'e}baux, S.; Lim, B.~P.; {Van Hentenryck}, P.; and {van den
+  Briel}, M.}, 2017.
+\newblock Controlling operation of energy-consuming devices.
+\newblock US2017/0003043 A1.
+
+\end{thebibliography}

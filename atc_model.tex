@@ -1,0 +1,82 @@
+% Todo:
+% ---- explain the concept of robustness towards thermal comfort uncertainty
+					% -- we don't the thermal comfort flexibility of each occupant, so we need to be robust against the uncertainty in the occupant comfort flexibility
+					% -- to be robust against uncertainty, we offer probabilistics guarantee on constraint satisfaction.
+					
+% Notes:
+	 %  there is no notion of probabilistics in the beginning.
+	 % 	we have only uncertainty and random variables.
+	 % 		by bounding the sum of random variables, or by bounding the norm of random vector, we set a probabilitics guarantee on the constraint satisfaction.
+
+
+\chapter{Model}
+\label{cha:atc_model}
+
+Let $m$ be a meeting scheduled to start at time step $j\in K_m$ in location $l$. To formalize these concepts, we introduce the following slack variables in the model $\undersl{T}^{s}_{m,k} \in [0, {\bm T}^u_m]$ and $\oversl{T}^{s}_{m,k} \in [0, {\bm T}^u_m]$, for $k\in K(i)$. These variables represent our unknown temperature violations above and below the default bounds $[\undersl{\bm{T}}, \oversl{\bm T}]$.
+Based on these variables, the first guarantee we want to provide can be written as the adaptive counterpart of the fixed temperature bound constraints~\eqref{eq:comfort}.
+\begin{equation}\label{eq:rob:comfort}
+\undersl{\bm{T}}^{\emptyset} + \undersl{\bm{T}}^{g}z_{l,k} - \undersl{T}^{s}_{m,k} \leq T_{l,k} \leq \oversl{\bm T}^{\emptyset} - \oversl{\bm{T}}^{g}z_{l,k} + \oversl{T}^{s}_{m,k}
+\end{equation} 
+%
+The second guarantee is about bounding the cumulative temperature violation, this can be formulated as follows,
+\begin{equation}
+\sum\limits_{k=j}^{j+{\bm d}_m -1}\left(\undersl{T}^{s}_{m,k}   +  \oversl{T}^{s}_{m,k} \right) {\bm \Delta_t} \leq {\bm \alpha}_m {\bm T}^u_m \label{eq:cum}
+\end{equation}
+
+To implement a probabilistic version of this constraint, we introduce random variables $\tilde{a}_{m,k}$, which represent the noise in our temperature violation, transforming constraints \eqref{eq:cum} into,
+\begin{equation}
+\sum\limits_{k=j}^{j+{\bm d}_m -1}\left(\undersl{T}^{s}_{m,k}   +  \oversl{T}^{s}_{m,k} + \tilde{a}_{m,k} \right) {\bm \Delta_t} \leq {\bm \alpha}_m {\bm T}^u_m \label{eq:cum_rand}
+\end{equation}
+
+\noindent In this work, the uncertain parameters $\tilde{a}_{m,k}$ are independent from the model variables\footnote{(cite additive uncertain param literature)}. We consider additive functions, where each parameter $\tilde{a}_{m,k}$ reflects the uncertainty over thermal comfort level at each time step $k$ in meeting $m$, taking its value in the given range $\left[\bar{a}_{m,k}-\hat{a}_{m,k}, \bar{a}_{m,k}+\hat{a}_{m,k}\right]$ independently and following no specific distribution. The additive functions are obtained by summing variables defined over each time step of the meeting, that is, $\sum\limits_{k=j}^{j+{\bm d}_m -1}{\tilde{a}_{m,k}}$ denotes the total disturbance to the constraint satisfaction.
+
+Let $\tilde{a}_{m,k} = \bar{a}_{m,k} + \hat{a}_{m,k} \xi_{m,k}$, with $\xi_{m,k}$ are independent and uniformly distributed random variables in $\left[-1, 1\right]$. We re-write constraints \eqref{eq:cum_rand} to 
+
+\begin{equation}
+\sum\limits_{k=j}^{j+{\bm d}_m -1}\left(\undersl{T}^{s}_{m,k}   +  \oversl{T}^{s}_{m,k} + \bar{a}_{m,k} + \hat{a}_{m,k} \xi_{m,k}  \right) {\bm \Delta_t} \leq {\bm \alpha}_m {\bm T}^u_m \label{eq:cum_rand_expand}
+\end{equation}
+
+We then resort to results from the Robust Optimization literature \cite{Elgh97,BenT98,BenT99,babonneau2009robust,hijazi2013robust} to be able to offer the following probabilistic guarantee,
+\begin{equation}
+\sc{Pr}\left(\sum\limits_{k=j}^{j+{\bm d}_m -1}\left(\undersl{T}^{s}_{m,k}   +  \oversl{T}^{s}_{m,k}  + \bar{a}_{m,k} + \hat{a}_{m,k} \xi_{m,k} \right) {\bm \Delta_t} \leq {\bm \alpha}_m {\bm T}^u_m\right) \ge {\bm p}_m \label{eq:cum_bound_prob}
+\end{equation}
+where $\sc{Pr}\left(f_{\bm \rho}(x) \le 0\right)$ denotes the probability of satisfying constraint $f_{\bm \rho}(x) \le 0$ given the uncertainty created by the random variables $\vec \xi_m$. In particular, based on \cite[Theorem 3.]{babonneau2009robust}, we can offer the above probabilistic guarantee by enforcing the following constraint
+  \begin{equation}\label{eq:radius}
+ \sum\limits_{k=j}^{j+{\bm d}_m -1} {\xi}_{m,k}^2 \le \bm{\delta}_m^2,
+ \end{equation}
+where the the ellipsoid radius $\bm{\delta}_m$ is linked to the constraint satisfaction probability ${\bm p}_m$ as follows:
+$$\bm{p}_m \ge 1 - exp(-\bm{\delta}_m^2/1.5).$$ For instance, a radius of $\bm{\delta}_m = 2.63$  leads to a constraint satisfaction probability $\bm{p}_m \ge 0.99$. 
+Furthermore, based on \cite[Corollary 1.]{hijazi2013robust}, we can write the following deterministic equivalent of \eqref{eq:cum_bound_prob} without having to explicitly enforce \eqref{eq:radius},
+\begin{equation}
+\sum\limits_{k=j}^{j+{\bm d}_m -1}\left(\undersl{T}^{s}_{m,k}   +  \oversl{T}^{s}_{m,k} \right) + \sum\limits_{k=j}^{j+{\bm d}_m -1} \bar{a}_{m,k}  + \sum\limits_{i \in \mathcal{S}} \hat{a}_{m,i} + \sqrt{\left({\bm \delta}_m^2 - |\mathcal{S}|\right) \sum\limits_{i \notin \mathcal{S}} \hat{a}^2_{m,i}  } \leq {\bm \alpha}_m {\bm T}^u_m/{\bm \Delta_t}, 
+%\sum\limits_{k=j}^{j+{\bm d}_m -1}\left(\undersl{T}^{s}_{m,k}   +  \oversl{T}^{s}_{m,k} \right)  + |\mathcal{S}| + \sqrt{\left({\bm \delta}_m^2 - |\mathcal{S}|\right)|\overline{\mathcal{S}}|} \leq {\bm \alpha}_m {\bm T}^u_m/{\bm \Delta_t}, 
+\label{eq:cum_bound_det}
+\end{equation}
+
+\noindent The set $\mathcal{S}$ is described in \cite[Proposition 1.]{hijazi2013robust}. For clarity, we repeat the procedure of generating set $\mathcal{S}$. 
+
+\noindent Let $\mathcal{S}$ be a set of indices defined as follow:
+
+$\forall \hat{a}_m \in \left(\mathbb{R}^\ast\right)^{d_m}, \delta \in [0, \sqrt{d_m}]: \exists \mathcal{S}\subset\left\{0, 1, 2, \ldots,d_m-1\right\} \textit{s.t.}
+\left\{
+\begin{array}{lll}
+\!|\mathcal{S}| \leq \delta^2 \\
+\!\frac{\sqrt{\delta_2 - |\mathcal{S}|}|\hat{a}_{m,i}|}{\sqrt{\sum\limits_{i \notin \mathcal{S}}\hat{a}^2_{m,i}}} > 1, \forall i \in \mathcal{S} \\
+\!\frac{\sqrt{\delta_2 - |\mathcal{S}|}|\hat{a}_{m,i}|}{\sqrt{\sum\limits_{i \notin \mathcal{S}}\hat{a}^2_{m,i}}} \leq 1, \forall i \notin \mathcal{S} \\
+\end{array}
+\right.$
+
+\noindent The elements of the vector $\hat{a}$ are sorted in descending order of their absolute values, i.e. $|\hat{a}_{m,i}| \geq \left|\hat{a}_{m,i+1}\right|, \forall i \in \left\{0, 1, 2, \ldots, n-1\right\}$ and consider the following procedure:
+
+\begin{algorithm}[H]
+\KwData{$\mathcal{S} := \emptyset; k := 1;$}
+\While{$k < n-1$}{
+\eIf{$ \frac{\sqrt{\delta^2-\left|S\right|}\left|\hat{a}_{m,k}\right|}{\sqrt{\sum_{i \geq k}{\hat{a}_{m,i}^2}}} \leq 1$}{\Return {$\mathcal{S};$}}
+{$\mathcal{S} := \mathcal{S}\cup{k}; k := k+1;$}
+}
+\Return {$S;$}
+\end{algorithm}
+
+%Let $k^\ast$ denote the last value taken by $k$ before exiting the procedure. $\mathcal{S}$ is returned at step 3 if and only if $\frac{\sqrt{\delta^2-\left|S\right|}\left|\hat{a}_{m,k^\ast}\right|}{\sqrt{\sum_{i \geq k^\ast}{\hat{a}_{m,i}^2}}} \leq 1$. Since the vector $\hat{a}_{m}$ are sorted according to the decreasing order of their absolute values we have $\frac{\sqrt{\delta^2-\left|S\right|}\left|\hat{a}_{m,j}\right|}{\sqrt{\sum_{i \geq k^\ast}{\hat{a}_{m,i}^2}}} \leq \frac{\sqrt{\delta^2-\left|S\right|}\left|\hat{a}_{m,k^\ast}\right|}{\sqrt{\sum_{i \geq k^\ast}{\hat{a}_{m,i}^2}}} \leq 1$, $\forall j \geq k^\ast$, that is $\forall j \notin \mathcal{S}$. As such $\mathcal{S}$ consists of a set of indices which covers $[\hat{a}_m[0], \ldots, \hat{a}_m[k^\ast]]$. 
+
+

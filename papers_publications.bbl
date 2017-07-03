@@ -1,0 +1,36 @@
+\begin{thebibliography}{3}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\providecommand{\urlprefix}{}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi:\discretionary{}{}{}#1}\else
+  \providecommand{\doi}{doi:\discretionary{}{}{}\begingroup
+  \urlstyle{rm}\Url}\fi
+
+\bibitem[{Lim et~al.(2016)Lim, Hijazi, Thi{\'e}baux, and {van den
+  Briel}}]{lim2016online_copy}
+\textsc{Lim, B.~P.; Hijazi, H.; Thi{\'e}baux, S.; and {van den Briel}, M.},
+  2016.
+\newblock Online hvac-aware occupancy scheduling with adaptive temperature
+  control.
+\newblock In \emph{International Conference on Principles and Practice of
+  Constraint Programming (CP)}, 683--700. Springer.
+
+\bibitem[{Lim et~al.(2015{\natexlab{a}})Lim, {van den Briel}, Thi{\'e}baux,
+  Backhaus, and Bent}]{lim2015hvac_copy}
+\textsc{Lim, B.~P.; {van den Briel}, M.; Thi{\'e}baux, S.; Backhaus, S.; and
+  Bent, R.}, 2015{\natexlab{a}}.
+\newblock Hvac-aware occupancy scheduling.
+\newblock In \emph{AAAI Conference on Artificial Intelligence (AAAI)},
+  4249--4250.
+
+\bibitem[{Lim et~al.(2015{\natexlab{b}})Lim, {van den Briel}, Thi{\'e}baux,
+  Bent, and Backhaus}]{lim2015large_copy}
+\textsc{Lim, B.~P.; {van den Briel}, M.; Thi{\'e}baux, S.; Bent, R.; and
+  Backhaus, S.}, 2015{\natexlab{b}}.
+\newblock Large neighborhood search for energy aware meeting scheduling in
+  smart buildings.
+\newblock In \emph{Integration of AI and OR Techniques in Constraint
+  Programming (CPAIOR)}, 240--254. Springer.
+
+\end{thebibliography}
