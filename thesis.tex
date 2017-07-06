@@ -129,70 +129,70 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%% Title page
 %%------------- BP Start here 
-%\pagestyle{empty}
-%\thispagestyle{empty}
-%\input{1_titlepage}
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Here begin the preliminaries
-%\input{2_frontmatter}
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Dedication
-%\cleardoublepage
-%\pagestyle{empty}
-%\input{3_dedication}
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%% Acknowledgements
-%\cleardoublepage
-%\pagestyle{empty}
-%\input{4_ack}
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%% Abstract
-%\cleardoublepage
-%\pagestyle{headings}
-%\input{5_abstract}
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%% Table of contents
-%\cleardoublepage
-%\pagestyle{headings}
-%\markboth{Contents}{Contents}
-%\tableofcontents
-%\listoffigures
-%\listoftables
-%\input{mypubs}
-%\input{symbols}
-	%%%%% pdflatex <filename>.tex
-	%%%%% makeindex <filename>.nlo -s nomencl.ist -o <filename>.nls
-	%%%%% pdflatex <filename>.tex
-%%%
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%% Here begins the main text
-%\mainmatter
-%\input{6_intro}
-%\input{7_background}
-%\input{14_opt}
-%\input{8_mip}
-%\input{9_lns}
-%\input{10_online}
-%\input{11_atc}
-%\input{12_conclusion}
-%\input{13_ep}
-%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Here begins the end matter
+\pagestyle{empty}
+\thispagestyle{empty}
+\input{1_titlepage}
 
-%
-%\backmatter
-%
-%\bibliographystyle{anuthesis}
-%\bibliography{thesis}
-%
-%\printindex
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Here begin the preliminaries
+\input{2_frontmatter}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Dedication
+\cleardoublepage
+\pagestyle{empty}
+\input{3_dedication}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Acknowledgements
+\cleardoublepage
+\pagestyle{empty}
+\input{4_ack}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Abstract
+\cleardoublepage
+\pagestyle{headings}
+\input{5_abstract}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% Table of contents
+\cleardoublepage
+\pagestyle{headings}
+\markboth{Contents}{Contents}
+\tableofcontents
+\listoffigures
+\listoftables
+\input{mypubs}
+\input{symbols}
+	%%%% pdflatex <filename>.tex
+	%%%% makeindex <filename>.nlo -s nomencl.ist -o <filename>.nls
+	%%%% pdflatex <filename>.tex
+%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Here begins the main text
+\mainmatter
+\input{6_intro}
+\input{7_background}
+\input{14_opt}
+\input{8_mip}
+\input{9_lns}
+\input{10_online}
+\input{11_atc}
+\input{12_conclusion}
+\input{13_ep}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Here begins the end matter
+
+
+\backmatter
+
+\bibliographystyle{anuthesis}
+\bibliography{thesis}
+
+\printindex
 %%------------- BP End here 
 
 
