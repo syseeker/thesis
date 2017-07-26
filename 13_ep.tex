@@ -3,22 +3,116 @@
 \chapter{HVAC Model Comparison}
 \label{cha:ep}
 
-\section{Overview}
+An attempt to model all relevant physical phenomena of the building's thermal dynamics and the HVAC control will lead to an overly complicated model, which is too computationally demanding for a real-time control system such as model predictive control. In this thesis, a number of abstractions, in terms of the modeling of the VAV-based HVAC system and the building thermal dynamics, are made to balance the accuracy and computational expense of solving a complex model of our joint scheduling and control problem. This chapter studies the impacts of these abstractions, and presents a preliminary experiments to showcase the impacts of such abstractions to our model. Specifically, the key research question we tackle can expressed concisely:
+\begin{quotation}
+		\emph{What are the impacts on the abstractions of HVAC control and building thermal dynamics modeling, and their resulting effects to our preferred occupancy schedules?}
+\end{quotation}
+To answer this question whilst lacking real-world building simulation data, we resort to comparing our model with that of in the state-of-the-art building energy simulation software, Energy+ \citep{crawley2000energyplus}. In Section \ref{app:model}, we provide a detailed elaboration of the model abstractions. In the subsequent sections, we present our initial findings to the impact of such abstractions, by comparing our model with the results from Energy+. Finally in Section \ref{app:conclusion}, we raise a number of potential work that form the basis of future research.
 
-An attempt to model all relevant physical phenomena of the building's thermal dynamics and the HVAC control will lead to an overly complicated model, which is too computationally demanding for a real-time control system such as model predictive control.
-This thesis adopts a reduced-order model to represent the transient thermal dynamics of building zones and the HVAC control. 
-We use RC networks to construct a low-order model of the transient heat flow through a solid surface, such as wall or window. The resistances and capacitances are carefully chosen to model the combined effect of thermal conduction, radiation and convection between the solid surfaces and the air masses. A RC network model of a solid surface is a set of linear differential equations whose order is equal to the number of capacitors. In our case, it is a first order linear differential equation for the window and a second order linear differential equation for the walls. The heat exchanged (a.k.a enthalpy) between all zones and the air supplied by the HVAC system are modeled with a set of ordinary differential equations (ODE). These are non-linear ODEs as the temperatures of the supply air and the air in a zone are taken into account. Our simplified model is then constructed by linking the linear ODEs corresponding to the RC networks for all walls and windows, and the non-linear ODEs corresponding to the enthalpy dynamics. Finally, we linearise the model to address the challenge caused by the presence of these non-linear equations. We relax the model in a principled way to obtain a solution guaranteed to provide a lower bound on the objective function.
+\section{Model Abstractions}\label{app:model}
 
-One question arises from adopting this simplified model is that, with these various assumptions and approximations, how accurate is the mathematical model compared to reality? 
+Table \ref{tab:impact} summarises the model abstractions (i.e. the simplications, relaxations and approximations from the real-world model) and discusses their impacts.
 
-\begin{figure}
+%\begin{table*}[!htbp]
+%\centering
+%\small
+%\begin{tabular}{p{0.1\linewidth} p{0.25\linewidth} p{0.25\linewidth}  p{0.25\linewidth}}
+%\hline \centering{\textbf{Model}} & \centering{\textbf{Abstractions}} & \centering{\textbf{Impacts}} & \centering{\textbf{Future Work}} \tabularnewline
+%\hline VAV-based system & 
+%\begin{itemize}
+	%\item Our model focus on optimizing the demand side control parameters of the HVAC system.
+	%\item The supply side of the HVAC system is abstracted.
+	%\item The control model is linearised.
+%\end{itemize} & 
+%\begin{itemize}		
+	%\item The optimized supply air flow temperature and air flow rate may not be achievable by the VAV or the supply side system.
+	%\item Inaccurate energy consumption calculation due to the abstractions of the supply side system.
+	%\item Inaccurate energy consumption calculation due to linearisation of the model. The linearised model produces only the lower bound on the energy consumption. Actual consumption may be higher.
+%\end{itemize} & 
+%\begin{itemize}	
+	%\item Incorporate HVAC supply side modeling.
+	%\item Compare the linearised model with a better MINLP-based HVAC model.
+	%\item Trial run on existing VAV-based buildings.
+%\end{itemize}
+%\tabularnewline
+%\hline Building thermal dynamics &
+%\begin{itemize}
+	%\item Reduced RC model is adopted.
+	%\item Zone humidity, infiltration etc are ignored.
+%\end{itemize}& 
+%\begin{itemize}
+	%\item Inaccurate zone temperature calculation, result in inaccurate feedback to the MPC-based control model.
+%\end{itemize}&
+%\begin{itemize}
+	%\item Incorporate more building thermal dynamics parameters.
+	%\item Explore data-driven techniques to calibrate RC parameters.	
+%\end{itemize}
+ %\tabularnewline
+%\tabularnewline
+%\end{tabular}
+%\normalsize
+	%\caption{Model abstractions, their impacts and potential future works}
+	%\label{tab:impact}
+%\end{table*}
+
+\begin{table*}[ht]
+\centering
+\small
+\begin{tabular}{p{0.1\linewidth} p{0.30\linewidth} p{0.48\linewidth}  }
+\hline \centering{\textbf{Model}} & \centering{\textbf{Abstractions}} & \centering{\textbf{Impacts}} \tabularnewline
+\hline \vspace{1ex} VAV-based system & 
+\begin{itemize}
+	\item Our model focus on optimizing the demand side control parameters of the HVAC system.
+	\item The supply side of the HVAC system is abstracted.
+	\item The control model is linearised.
+\end{itemize} & 
+\begin{itemize}		
+	\item The optimized supply air flow temperature and air flow rate may not be achievable by the VAV or the supply side system.
+	\item Inaccurate energy consumption calculation due to the abstractions of the supply side system.
+	\item Inaccurate energy consumption calculation due to linearisation of the model. The linearised model produces only the lower bound on the energy consumption. Actual consumption may be higher.
+\end{itemize} 
+\tabularnewline
+\hline \vspace{1ex} Building thermal dynamics &
+\begin{itemize}
+	\item Reduced RC model is adopted.
+	\item Zone humidity, infiltration etc are ignored.
+\end{itemize}& 
+\begin{itemize}
+	\item Inaccurate zone temperature calculation, result in inaccurate feedback to the MPC-based control model.
+\end{itemize}
+ \tabularnewline
+\tabularnewline
+\end{tabular}
+\normalsize
+	\caption{Model abstractions and their impacts}
+	\label{tab:impact}
+\end{table*}
+
+
+\textbf{Abstractions of the VAV-based HVAC system.} In this thesis, we focus on the modeling of the demand side of the HVAC system, that is, we optimise the HVAC operation by identifying the optimum supply air flow rate and air flow temperature in the VAV-based system. The building load is changed based on the schedule produced. The supply side of the HVAC systems, including devices such as chillers, boilers and condensers, together with their control operations and energy consumptions, are abstracted in our model. These devices are in fact the most energy-hungry. Such abstraction impacts the the calculation of energy consumption. 
+
+In addition, we utilise MILP to solve the joint HVAC control and occupancy scheduling problem. This linearised model produces an optimal solution guaranteed to provide a lower bound on the objective function, but it remains an open question whether it is possible to fit such models in a practical environment. 
+
+\textbf{Abstractions of the building thermal dynamics.} We adopt a lumped RC network to model the building thermal dynamics. Specifically, we use 3R2C to model the heat transmission between two walls, 2R1C for the ceiling and the floor and 1R for the window. For simplication, we also ignore humidity and infiltration in the thermal dynamics model. Such abstraction impacts the accuracy of zone temperature calculation, and may eventually influences the MPC-based HVAC control, which relies heavily on accurate feedback. 
+
+One question arises from adopting this abstracted model is that, with these various assumptions and approximations, how accurate is the mathematical model compared to reality? To answer this question, we present our overall approach to comparing the abstracted model and Energy+ in the following sections.
+
+\section{Model Comparison} \label{app:compare}
+
+% We adopts a reduced-order model to represent the transient thermal dynamics of building zones and the HVAC control. We use RC networks to construct a low-order model of the transient heat flow through a solid surface, such as wall or window. The resistances and capacitances are carefully chosen to model the combined effect of thermal conduction, radiation and convection between the solid surfaces and the air masses. A RC network model of a solid surface is a set of linear differential equations whose order is equal to the number of capacitors. In our case, it is a first order linear differential equation for the window and a second order linear differential equation for the walls. The heat exchanged (a.k.a enthalpy) between all zones and the air supplied by the HVAC system are modeled with a set of ordinary differential equations (ODE). These are non-linear ODEs as the temperatures of the supply air and the air in a zone are taken into account. Our simplified model is then constructed by linking the linear ODEs corresponding to the RC networks for all walls and windows, and the non-linear ODEs corresponding to the enthalpy dynamics. Finally, we linearise the model to address the challenge caused by the presence of these non-linear equations. We relax the model in a principled way to obtain a solution guaranteed to provide a lower bound on the objective function.
+
+\begin{figure}[t]
 	\centering
 		\includegraphics[width=0.9\linewidth,keepaspectratio]{./figs/app_flow.png}		
 	\caption{Energy+'s VAV-based HVAC system}
 	\label{fig:epflow}
 \end{figure}
 
-To answer this question whilst lacking real-world building simulation data, we resort to comparing our model with that of in the state-of-the-art building energy simulation software, Energy+ \citep{crawley2000energyplus}. We compare our model using the following steps in Figure \ref{fig:epflow}. First we retrieve a set of ground truth data and results from the building energy simulation software Energy+. This is achieved by first constructing a building model, and assigning meetings in the building zones. Next, we learn and synchronize the building thermal model, specifically the R and C parameters in our joint model. Then we run our joint model with the trained building thermal model, as well as the same meeting schedules. Lastly, we compare and rank the energy consumption generated by both the Energy+ and our joint model. The following sections discuss each step in more details.
+We compare our model using the following steps in Figure \ref{fig:epflow}. First, we define a set of fixed meeting schedules.  We then retrieve a set of HVAC control and its energy consumption from Energy+. This is achieved by first constructing a building model using Energy+, and assigning fixed meeting schedules in the building zones. Next, we learn and synchronize the building thermal model, specifically the R and C parameters in our joint model. Then we run our joint model with the trained building thermal model, given the same fixed meeting schedules. Lastly, we compare and rank the energy consumption generated by both the Energy+ and our joint model for each of the schedules. The following sections discuss each step in more details.
+
+%First, we define a set of fixed meeting schedules. We then retrieve a set of HVAC control and its energy consumption from the building energy simulation software Energy+. This is achieved by first constructing a building model, and assigning the fixed meeting schedules in the building zones. Next, we learn and synchronize the building thermal model, specifically the R and C parameters in our joint model. Then we run our joint model with the trained building thermal model, given the same fixed meeting schedules. Lastly, we compare and rank the energy consumption generated by both the Energy+ and our joint model. The following sections discuss each step in more details.
+
+%First we retrieve a set of ground truth data and results from the building energy simulation software Energy+. This is achieved by first constructing a building model, and assigning meetings in the building zones. Next, we learn and synchronize the building thermal model, specifically the R and C parameters in our joint model. Then we run our joint model with the trained building thermal model, as well as the same meeting schedules. Lastly, we compare and rank the energy consumption generated by both the Energy+ and our joint model. The following sections discuss each step in more details.
 
 
 \section{Simulation Using Energy+} \label{app:ep}
@@ -211,7 +305,7 @@ In the following experiments, we run 7 schedules defined in Table \ref{tab:app_s
 \vspace*{-2ex}
 \end{figure}
 
-\section{Conclusion and Future Work}
+\section{Conclusion and Future Work} \label{app:conclusion}
 
 In this experiment we compared the accuracy of our model with Energy+. Various comparisons have been performed to determine the differences between the modeling of the building thermal dynamics, the HVAC control in terms of supply air flow rate and temperature configurations for each zone in the building, the energy consumptions of different occupancy schedules and their energy-efficiency ranking.
 
@@ -219,6 +313,52 @@ We conclude that our MILP model is a simplified HVAC \& building thermal model, 
 The gap of energy consumption between EP vs MILP can be explained with the fact that Energy+ uses reactive strategy, whilst MILP uses MPC which takes advantage of the knowledge of the schedules to optimise control. On top of this, for Energy+, the objective is to achieve the occupant thermal comfort temperature, regardless the energy consumption. On the other hand, for MILP, the objective is to achieve both.
 
 
+\begin{table*}[ht]
+\centering
+\small
+\begin{tabular}{p{0.1\linewidth} p{0.6\linewidth}}
+\hline \centering{\textbf{Model}} & \centering{\textbf{Future Work}} \tabularnewline
+\hline \vspace{1ex} VAV-based system & 
+\begin{itemize}	
+	\item Incorporate HVAC supply side modeling.
+	\item Compare the linearised model with a better MINLP-based HVAC model.
+	\item Trial run on existing VAV-based buildings.
+\end{itemize}
+\tabularnewline
+\hline \vspace{1ex} Building thermal dynamics &
+\begin{itemize}
+	\item Incorporate more building thermal dynamics parameters.
+	\item Explore data-driven techniques to calibrate RC parameters.	
+\end{itemize}
+ \tabularnewline
+\tabularnewline
+\end{tabular}
+\normalsize
+	\caption{Model abstractions and potential future works}
+	\label{tab:future}
+\end{table*}
+
+Last but not least, Table \ref{tab:future} summarises a series of potential future work that can be tackled to overcome the errors that are introduced by the model abstractions used in this thesis.
+
+\textbf{Abstractions of the VAV-based HVAC system.} Future research could develop a more comprehensive model that incorporates the control of the HVAC supply side devices into our joint model. Specifically, such control involves optimizing the following operations:
+\begin{itemize}
+	\item the chiller operations (for eg. chiller water temperature, a.k.a the conditioned air temperature, which can be dynamically reset based on outdoor temperature, 
+	\item the boiler operations,
+	\item the condenser operations,
+	\item a more complex supply fan model, which is defined as a quartic function in Energy+ \citep{crawley2000energyplus}, instead of a linear function in our model etc.
+\end{itemize}
+
+Further investigations are required to examine how accurate the our MILP model compared to the HVAC control in practice. This can be achieved by (a) comparing the MILP model with a better MINLP-based HVAC model, and/or (b) conducting a trial run on existing VAV-based buildings with our optimised occupancy schedules, and comparing the room temperatures, supply air flow rate, air flow temperature and energy consumption produced by the models and the real-world data. %We hope that such a trial will be the topic of future work.
+
+\textbf{Abstractions of the building thermal dynamics.} In future, additional building thermal dynamics parameters such as the following are worth exploring: 
+\begin{itemize}
+	\item humidity in the enthalpy calculation,	
+	\item thermal convection and infiltration/exfiltration in the zone temperature calculations,	
+	\item temperature of mixed air in cooling load,		
+\end{itemize}
+These parameters have been found useful in modeling a more accurate HVAC system and in improving the energy-efficiency of the HVAC systems. However, the level of abstraction at which the models are developed is an important consideration, as this will impact the efficiency and accuracy of the model, as well as its practicability in the real-world. In fact, it is always necessary to strike the right balance between how closely reality can be modeled and the practicability of deploying the model in the real world.
+
+In addition, future research could also explore machine learning techniques to improve on the building thermal dynamics model. For example, the RC model can be learnt and configured using real-data. Specifically, the RC parameters can be calibrated using temperature data collected from sensors, and further optimised for each building. 
 
 
 

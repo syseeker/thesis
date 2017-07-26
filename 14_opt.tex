@@ -53,10 +53,10 @@ The above model is a mixed integer linear program as it has a linear objective a
 &\undersl{x} \leq x \leq \oversl{x}	\quad \mbox{(bound constraints)}\\
 &\undersl{y} \leq y \leq \oversl{y}	\quad \mbox{(bound constraints)}\\
 &w \in \mathbb{R}, x \in \mathbb{R}^+, y \in \mathbb{R}^+ \\
-&z \in \left[0, 1\right] \quad \mbox{(integrality constraints)} \\
+&z \in \left\{0, 1\right\} \quad \mbox{(integrality constraints)} \\
 \end{align*}
 \endgroup 
-\noindent where $x$, $y$ and $z$ are the decision variables, $u$ and $w$ are auxiliary variables, $x$ and $c \in \mathbb{R}^n$, $y \in \mathbb{R}^m$, and $Q$ is a matrix of dimension $n \times m$. $z$ is a vector of integer variables, whereas $x$ and $y$ are sets of positive continuous variables. $\undersl{w}$, $\oversl{w}$, $\undersl{x}$, $\oversl{x}$, $\undersl{y}$, $\oversl{y}$, $\undersl{z}$ and $\oversl{z}$ are vectors of bounds. This model captures the nature of our problem, where $x$ and $y$ denote the interdependent continuous variables in HVAC control and $z$ denotes the discrete scheduling decisions. 
+\noindent where $x$, $y$ and $z$ are the decision variables, $u$ and $w$ are auxiliary variables, $x$ and $c \in \mathbb{R}^n$, $y \in \mathbb{R}^m$, and $Q$ is a matrix of dimension $n \times m$. $z$ is a vector of binary variables, whereas $x$ and $y$ are sets of positive continuous variables. $\undersl{w}$, $\oversl{w}$, $\undersl{x}$, $\oversl{x}$, $\undersl{y}$, $\oversl{y}$, $\undersl{z}$ and $\oversl{z}$ are vectors of bounds. This model captures the nature of our problem, where $x$ and $y$ denote the interdependent continuous variables in HVAC control and $z$ denotes the discrete scheduling decisions. 
 
 It is easy to see that this is a MINLP problem with a bilinear objective, sets of linear and bilinear constraints, and sets of discrete and continuous decision variables. The matrix $Q$ is not positive semidefinite, so this problem is nonconvex even when the integrality constraints are relaxed. Problems of this type are very difficult to solve, because they combine all the difficulties of both of their subclasses: the combinatorial nature of MIP and the difficulty in solving nonconvex non-linear programs (NLP) \citep{bussieck2003mixed}. Fortunately, innovative approaches and related techniques have been developed to exploit the structure of MIP and NLP within MINLP. 
 
@@ -165,10 +165,10 @@ The following shows an online MILP model that we tackle in Chapter \ref{cha:onli
 &v_k \leq \underline{x}y_k + \overline{y}x_k - \underline{x}\overline{y} \quad \forall k \in K(i) \\
 &v_k \leq \overline{x}y_k + \underline{y}x_k - \overline{x}\underline{y} \quad \forall k \in K(i) \\
 &w \in \mathbb{R}, x \in \mathbb{R}^+, y \in \mathbb{R}^+ \\
-&z \in \left[0, 1\right] \\
+&z \in \left\{0, 1\right\} \\
 \end{align*}
 \endgroup 
-Similar to the model in Section \ref{sec:mip:concept}, $x$, $y$ and $z$ are the decision variables, $u$ and $w$ are auxiliary variables, $x$ and $c \in \mathbb{R}^n$, $y \in \mathbb{R}^m$. $z$ is a vector of integer variables, whereas $x$ and $y$ are sets of positive continuous variables. $\undersl{w}$, $\oversl{w}$, $\undersl{x}$, $\oversl{x}$, $\undersl{y}$, $\oversl{y}$, $\undersl{z}$ and $\oversl{z}$ are vectors of bounds. $v$ is a new variable introduced for the bilinear term $xy$ together with four inequalities that define its convex envelope using the bounds $[\underline{x},\overline{x}]$ and $[\underline{y},\overline{y}]$ on each of the two variables involved.
+Similarly to the model in Section \ref{sec:mip:concept}, $x$, $y$ and $z$ are the decision variables, $u$ and $w$ are auxiliary variables, $x \in \mathbb{R}^n$, $c \in \mathbb{R}^n$ and $y \in \mathbb{R}^m$. $z$ is a vector of binary variables, whereas $x$ and $y$ are a vector of positive continuous variables, respectively. $\undersl{w}$, $\oversl{w}$, $\undersl{x}$, $\oversl{x}$, $\undersl{y}$, $\oversl{y}$, $\undersl{z}$ and $\oversl{z}$ are vectors of bounds. $v$ is a new variable introduced for the bilinear term $xy$ together with four inequalities that define its convex envelope using the bounds $[\underline{x},\overline{x}]$ and $[\underline{y},\overline{y}]$ on each of the two variables involved.
 
 In our joint model, we tackle both online scheduling and online MPC in parallel. 
 
